@@ -1,0 +1,2 @@
+# Core prototype uses Python standard library only.
+# Optional model/dashboard dependencies can be added in later milestones.
