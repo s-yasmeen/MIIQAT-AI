@@ -13,6 +13,7 @@ In the current synthetic three-zone Hajj/Umrah transport network, does selecting
 - Primary outcome: mean rollout risk (same risk function applied after each modeled step).
 - Secondary outcomes: percent risk reduction against no action, peak rollout risk, critical-risk interval rate, low-confidence interval rate, and heuristic warning threshold.
 - Repeatability: fixed seed sequence beginning at 2026. CSV stores step-level outcomes; JSON stores aggregate summaries and assumptions.
+- Uncertainty: normal-approximation 95% intervals use independent seed-level means; paired policy differences are computed within each seed. Time steps are not treated as independent samples.
 
 Run:
 
