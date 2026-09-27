@@ -17,6 +17,16 @@
         0.3056122662579988
       ],
       "independent_seed_count": 20,
+      "paired_network_minus_no_action_risk_mean_and_95pct_ci": [
+        -0.05676666666666667,
+        -0.058931011555587755,
+        -0.05460232177774558
+      ],
+      "paired_network_minus_local_risk_mean_and_95pct_ci": [
+        -0.007092500000000001,
+        -0.008828163267308894,
+        -0.0053568367326911085
+      ],
       "mean_local_policy_horizon_risk": 0.3081094166666667,
       "network_vs_no_action_reduction_pct": 15.866202171098301,
       "local_vs_no_action_reduction_pct": 13.88385856161184,
@@ -35,6 +45,16 @@
         0.6783873314438044
       ],
       "independent_seed_count": 20,
+      "paired_network_minus_no_action_risk_mean_and_95pct_ci": [
+        -0.0568978333333333,
+        -0.05935417758345177,
+        -0.054441489083214833
+      ],
+      "paired_network_minus_local_risk_mean_and_95pct_ci": [
+        -0.007045083333333333,
+        -0.007919241954392088,
+        -0.006170924712274578
+      ],
       "mean_local_policy_horizon_risk": 0.6829205833333334,
       "network_vs_no_action_reduction_pct": 7.764724880818062,
       "local_vs_no_action_reduction_pct": 6.80329751810472,
@@ -53,6 +73,16 @@
         0.39764378116003757
       ],
       "independent_seed_count": 20,
+      "paired_network_minus_no_action_risk_mean_and_95pct_ci": [
+        -0.014333333333333333,
+        -0.01446471157127063,
+        -0.014201955095396037
+      ],
+      "paired_network_minus_local_risk_mean_and_95pct_ci": [
+        -0.006679416666666665,
+        -0.006752559243810406,
+        -0.006606274089522924
+      ],
       "mean_local_policy_horizon_risk": 0.4023393333333333,
       "network_vs_no_action_reduction_pct": 3.4959925153239255,
       "local_vs_no_action_reduction_pct": 1.8668396776450953,
@@ -71,6 +101,16 @@
         0.37220877764750704
       ],
       "independent_seed_count": 20,
+      "paired_network_minus_no_action_risk_mean_and_95pct_ci": [
+        -0.056772666666666666,
+        -0.05893884396401366,
+        -0.05460648936931967
+      ],
+      "paired_network_minus_local_risk_mean_and_95pct_ci": [
+        -0.002982916666666667,
+        -0.003679340414659946,
+        -0.0022864929186733884
+      ],
       "mean_local_policy_horizon_risk": 0.37059716666666664,
       "network_vs_no_action_reduction_pct": 13.377572313629688,
       "local_vs_no_action_reduction_pct": 12.674695634467216,
@@ -89,6 +129,16 @@
         0.32977283023834586
       ],
       "independent_seed_count": 20,
+      "paired_network_minus_no_action_risk_mean_and_95pct_ci": [
+        -0.05676825,
+        -0.05893271153509906,
+        -0.05460378846490094
+      ],
+      "paired_network_minus_local_risk_mean_and_95pct_ci": [
+        -0.0024505833333333324,
+        -0.003146107112189096,
+        -0.0017550595544775687
+      ],
       "mean_local_policy_horizon_risk": 0.32763025,
       "network_vs_no_action_reduction_pct": 14.862824883410156,
       "local_vs_no_action_reduction_pct": 14.221223443423238,
@@ -107,6 +157,16 @@
         0.8156081090835894
       ],
       "independent_seed_count": 20,
+      "paired_network_minus_no_action_risk_mean_and_95pct_ci": [
+        -0.009724000000000007,
+        -0.009785594962845626,
+        -0.009662405037154388
+      ],
+      "paired_network_minus_local_risk_mean_and_95pct_ci": [
+        -0.0008570833333333336,
+        -0.0009050552244390354,
+        -0.0008091114422276318
+      ],
       "mean_local_policy_horizon_risk": 0.8163536666666666,
       "network_vs_no_action_reduction_pct": 1.1783516063937194,
       "local_vs_no_action_reduction_pct": 1.0744904872404255,
@@ -125,6 +185,16 @@
         0.6221748867913394
       ],
       "independent_seed_count": 20,
+      "paired_network_minus_no_action_risk_mean_and_95pct_ci": [
+        -0.017733750000000003,
+        -0.018221275808268725,
+        -0.01724622419173128
+      ],
+      "paired_network_minus_local_risk_mean_and_95pct_ci": [
+        -0.011634416666666666,
+        -0.0137868169714116,
+        -0.009482016361921732
+      ],
       "mean_local_policy_horizon_risk": 0.6333119166666666,
       "network_vs_no_action_reduction_pct": 2.7734497946352983,
       "local_vs_no_action_reduction_pct": 0.9538983452876917,
@@ -143,6 +213,16 @@
       0.5028534217691282
     ],
     "independent_seed_count": 20,
+    "paired_network_minus_no_action_risk_mean_and_95pct_ci": [
+      -0.03842807142857142,
+      -0.039280800576483144,
+      -0.0375753422806597
+    ],
+    "paired_network_minus_local_risk_mean_and_95pct_ci": [
+      -0.005534571428571428,
+      -0.006045229632165814,
+      -0.005023913224977042
+    ],
     "mean_local_policy_horizon_risk": 0.505894619047619,
     "network_vs_no_action_reduction_pct": 7.1323160385381605,
     "local_vs_no_action_reduction_pct": 6.105090078479038,
