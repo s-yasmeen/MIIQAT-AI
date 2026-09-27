@@ -30,9 +30,9 @@ python3 benchmark_miqaat.py
 Default benchmark: 20 seeds × 120 steps for each defined scenario, with five-step rollouts. Output files are written to `benchmark_results/`:
 
 - `benchmark_steps.csv`: per-step policy results and risk metrics.
-- `benchmark_summary.json`: scenario summaries, aggregate results, and limitations.
+- `benchmark_summary.json`: scenario summaries, aggregate results, and limitations. A checked-in default-run snapshot is available at [benchmark_results/benchmark_summary.json](benchmark_results/benchmark_summary.json).
 
-For a quick smoke run:
+Run the simulator regression checks with:\n\n```bash\npython3 -m unittest discover -s tests -v\n```\n\nFor a quick smoke run:
 
 ```bash
 python3 benchmark_miqaat.py --seeds 2 --steps 30 --scenario mixed --out benchmark_smoke
