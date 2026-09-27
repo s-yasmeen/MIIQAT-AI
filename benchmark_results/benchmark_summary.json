@@ -1,0 +1,158 @@
+{
+  "label": "SIMULATED SYNTHETIC BENCHMARK \u2014 NOT REAL-WORLD VALIDATION",
+  "parameters": {
+    "seeds_per_scenario": 20,
+    "steps_per_seed": 120,
+    "horizon_steps": 5
+  },
+  "scenarios": [
+    {
+      "scenario": "normal",
+      "intervals": 2400,
+      "mean_current_risk": 0.3459625,
+      "mean_no_action_horizon_risk": 0.3577835833333333,
+      "mean_network_policy_horizon_risk": 0.3010169166666667,
+      "network_policy_seed_level_95pct_normal_ci": [
+        0.29642156707533457,
+        0.3056122662579988
+      ],
+      "independent_seed_count": 20,
+      "mean_local_policy_horizon_risk": 0.3081094166666667,
+      "network_vs_no_action_reduction_pct": 15.866202171098301,
+      "local_vs_no_action_reduction_pct": 13.88385856161184,
+      "critical_interval_rate_pct": 0.0,
+      "low_confidence_interval_rate_pct": 0.0,
+      "warning_minutes_mean": 4.979166666666667
+    },
+    {
+      "scenario": "surge",
+      "intervals": 2400,
+      "mean_current_risk": 0.7266954166666667,
+      "mean_no_action_horizon_risk": 0.7327733333333333,
+      "mean_network_policy_horizon_risk": 0.6758755000000001,
+      "network_policy_seed_level_95pct_normal_ci": [
+        0.6733636685561958,
+        0.6783873314438044
+      ],
+      "independent_seed_count": 20,
+      "mean_local_policy_horizon_risk": 0.6829205833333334,
+      "network_vs_no_action_reduction_pct": 7.764724880818062,
+      "local_vs_no_action_reduction_pct": 6.80329751810472,
+      "critical_interval_rate_pct": 92.41666666666667,
+      "low_confidence_interval_rate_pct": 0.0,
+      "warning_minutes_mean": 1.1683333333333332
+    },
+    {
+      "scenario": "shuttle_delay",
+      "intervals": 2400,
+      "mean_current_risk": 0.40488833333333335,
+      "mean_no_action_horizon_risk": 0.40999325,
+      "mean_network_policy_horizon_risk": 0.39565991666666667,
+      "network_policy_seed_level_95pct_normal_ci": [
+        0.39367605217329577,
+        0.39764378116003757
+      ],
+      "independent_seed_count": 20,
+      "mean_local_policy_horizon_risk": 0.4023393333333333,
+      "network_vs_no_action_reduction_pct": 3.4959925153239255,
+      "local_vs_no_action_reduction_pct": 1.8668396776450953,
+      "critical_interval_rate_pct": 0.0,
+      "low_confidence_interval_rate_pct": 0.0,
+      "warning_minutes_mean": 5
+    },
+    {
+      "scenario": "blocked_emergency_route",
+      "intervals": 2400,
+      "mean_current_risk": 0.4125608333333333,
+      "mean_no_action_horizon_risk": 0.42438691666666667,
+      "mean_network_policy_horizon_risk": 0.36761425,
+      "network_policy_seed_level_95pct_normal_ci": [
+        0.3630197223524929,
+        0.37220877764750704
+      ],
+      "independent_seed_count": 20,
+      "mean_local_policy_horizon_risk": 0.37059716666666664,
+      "network_vs_no_action_reduction_pct": 13.377572313629688,
+      "local_vs_no_action_reduction_pct": 12.674695634467216,
+      "critical_interval_rate_pct": 0.0,
+      "low_confidence_interval_rate_pct": 0.0,
+      "warning_minutes_mean": 4.998333333333333
+    },
+    {
+      "scenario": "sensor_outage",
+      "intervals": 2400,
+      "mean_current_risk": 0.37011083333333333,
+      "mean_no_action_horizon_risk": 0.38194791666666666,
+      "mean_network_policy_horizon_risk": 0.32517966666666664,
+      "network_policy_seed_level_95pct_normal_ci": [
+        0.32058650309498743,
+        0.32977283023834586
+      ],
+      "independent_seed_count": 20,
+      "mean_local_policy_horizon_risk": 0.32763025,
+      "network_vs_no_action_reduction_pct": 14.862824883410156,
+      "local_vs_no_action_reduction_pct": 14.221223443423238,
+      "critical_interval_rate_pct": 0.0,
+      "low_confidence_interval_rate_pct": 99.70833333333333,
+      "warning_minutes_mean": 5
+    },
+    {
+      "scenario": "compound",
+      "intervals": 2400,
+      "mean_current_risk": 0.8195620833333332,
+      "mean_no_action_horizon_risk": 0.8252205833333333,
+      "mean_network_policy_horizon_risk": 0.8154965833333333,
+      "network_policy_seed_level_95pct_normal_ci": [
+        0.8153850575830772,
+        0.8156081090835894
+      ],
+      "independent_seed_count": 20,
+      "mean_local_policy_horizon_risk": 0.8163536666666666,
+      "network_vs_no_action_reduction_pct": 1.1783516063937194,
+      "local_vs_no_action_reduction_pct": 1.0744904872404255,
+      "critical_interval_rate_pct": 96.66666666666667,
+      "low_confidence_interval_rate_pct": 99.70833333333333,
+      "warning_minutes_mean": 1.0666666666666667
+    },
+    {
+      "scenario": "mixed",
+      "intervals": 2400,
+      "mean_current_risk": 0.6314841666666667,
+      "mean_no_action_horizon_risk": 0.63941125,
+      "mean_network_policy_horizon_risk": 0.6216775,
+      "network_policy_seed_level_95pct_normal_ci": [
+        0.6211801132086606,
+        0.6221748867913394
+      ],
+      "independent_seed_count": 20,
+      "mean_local_policy_horizon_risk": 0.6333119166666666,
+      "network_vs_no_action_reduction_pct": 2.7734497946352983,
+      "local_vs_no_action_reduction_pct": 0.9538983452876917,
+      "critical_interval_rate_pct": 29.875,
+      "low_confidence_interval_rate_pct": 4.916666666666667,
+      "warning_minutes_mean": 2.68375
+    }
+  ],
+  "overall": {
+    "intervals": 16800,
+    "mean_current_risk": 0.5301805952380952,
+    "mean_no_action_horizon_risk": 0.538788119047619,
+    "mean_network_policy_horizon_risk": 0.5003600476190476,
+    "network_policy_seed_level_95pct_normal_ci": [
+      0.497866673468967,
+      0.5028534217691282
+    ],
+    "independent_seed_count": 20,
+    "mean_local_policy_horizon_risk": 0.505894619047619,
+    "network_vs_no_action_reduction_pct": 7.1323160385381605,
+    "local_vs_no_action_reduction_pct": 6.105090078479038,
+    "critical_interval_rate_pct": 31.279761904761905,
+    "low_confidence_interval_rate_pct": 29.19047619047619,
+    "warning_minutes_mean": 3.556607142857143
+  },
+  "limitations": [
+    "Synthetic dynamics and risk coefficients are assumptions, not calibrated Hajj site measurements.",
+    "The horizon rollout reuses current sensor state; it is a decision-support experiment, not a validated forecast.",
+    "Warning minutes are heuristic labels and are not measured incident lead time."
+  ]
+}
