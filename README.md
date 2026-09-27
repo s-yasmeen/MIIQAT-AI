@@ -32,6 +32,20 @@ Default benchmark: 20 seeds × 120 steps for each defined scenario, with five-st
 - `benchmark_steps.csv`: per-step policy results and risk metrics.
 - `benchmark_summary.json`: scenario summaries, aggregate results, and limitations. A checked-in default-run snapshot is available at [benchmark_results/benchmark_summary.json](benchmark_results/benchmark_summary.json).
 
+## Optional: HAJJv2 count-stream benchmark
+
+A separate exploratory benchmark evaluates one-step-ahead temporal baselines on the public HAJJv2-CrowdCount annotations. It uses the previous three or more human-verified counts from each test video to forecast the next count. This does not run image-based counters and does not evaluate MIIQAT's risk/intervention policy.
+
+Download the annotation CSVs from the [HAJJv2-CrowdCount repository](https://github.com/reem-8899/HAJJv2-CrowdCount), then run:
+
+```bash
+python3 benchmarks/hajj_count_forecast.py \
+  --train-csv path/to/train_counts.csv \
+  --test-csv path/to/test_counts.csv
+```
+
+The checked-in [summary](benchmarks/hajj_count_forecast_summary.json) reports MAE, RMSE, bias, and video-cluster bootstrap intervals. In the 124 scored frames from the eight-video main test subset, persistence achieved MAE 6.59 people; this is a forecast-from-prior-count baseline. Published YOLO-World, SAM3Count, and APGCC scores are per-frame visual-counting results, so they are not directly comparable to this temporal forecast score.
+
 Run the simulator regression checks with:\n\n```bash\npython3 -m unittest discover -s tests -v\n```\n\nFor a quick smoke run:
 
 ```bash
