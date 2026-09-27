@@ -4,7 +4,6 @@ import argparse
 import csv
 import json
 import math
-import math
 import statistics
 from pathlib import Path
 
@@ -57,15 +56,20 @@ def aggregate(rows):
     def mean(key):
         return statistics.mean(row[key] for row in rows)
     baseline = mean("no_action_horizon_mean")
-    values = [row["network_horizon_mean"] for row in rows]
-    sd = statistics.stdev(values) if len(values) > 1 else 0.0
-    ci_half = 1.96 * sd / math.sqrt(len(values)) if values else 0.0
+    by_seed = {}
+    for row in rows:
+        by_seed.setdefault(row["seed"], []).append(row["network_horizon_mean"])
+    seed_means = [statistics.mean(values) for values in by_seed.values()]
+    seed_sd = statistics.stdev(seed_means) if len(seed_means) > 1 else 0.0
+    ci_half = 1.96 * seed_sd / math.sqrt(len(seed_means)) if seed_means else 0.0
+    network_mean = mean("network_horizon_mean")
     return {
         "intervals": len(rows),
         "mean_current_risk": mean("current_risk"),
         "mean_no_action_horizon_risk": baseline,
-        "mean_network_policy_horizon_risk": mean("network_horizon_mean"),
-        "network_policy_95pct_normal_ci": [max(0.0, mean("network_horizon_mean") - ci_half), min(1.0, mean("network_horizon_mean") + ci_half)],
+        "mean_network_policy_horizon_risk": network_mean,
+        "network_policy_seed_level_95pct_normal_ci": [max(0.0, network_mean - ci_half), min(1.0, network_mean + ci_half)],
+        "independent_seed_count": len(seed_means),
         "mean_local_policy_horizon_risk": mean("local_horizon_mean"),
         "network_vs_no_action_reduction_pct": 100 * (baseline - mean("network_horizon_mean")) / baseline if baseline else 0,
         "local_vs_no_action_reduction_pct": 100 * (baseline - mean("local_horizon_mean")) / baseline if baseline else 0,
@@ -91,7 +95,7 @@ def main():
     for scenario in scenarios:
         scenario_rows = []
         for seed in range(args.seeds):
-            scenario_rows.extend(run_trial(2026 + seed, scenario, args.steps, args.horizon))
+            scenario_rows.extend({"seed": 2026 + seed, **row} for row in run_trial(2026 + seed, scenario, args.steps, args.horizon))
         all_rows.extend({"scenario": scenario, **row} for row in scenario_rows)
         summaries.append({"scenario": scenario, **aggregate(scenario_rows)})
     out = Path(args.out)
