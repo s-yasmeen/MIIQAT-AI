@@ -1,0 +1,131 @@
+{
+  "label": "HAJJv2 real annotation benchmark; temporal baselines only",
+  "source": "https://github.com/reem-8899/HAJJv2-CrowdCount",
+  "task": "one-step-ahead crowd-count forecasting from prior per-second human counts",
+  "warmup_seconds": 3,
+  "train_video_count": 9,
+  "test_video_count": 9,
+  "train_annotation_count": 216,
+  "test_annotation_count": 167,
+  "scoring_rows_after_warmup": 140,
+  "all_test": {
+    "n_frames": 140,
+    "n_videos": 9,
+    "models": {
+      "persistence": {
+        "mae": 7.478571428571429,
+        "rmse": 10.14361164195757,
+        "bias_prediction_minus_truth": 1.0071428571428571,
+        "video_cluster_bootstrap_95pct_mae_ci": [
+          5.0215827338129495,
+          9.972027972027972
+        ]
+      },
+      "rolling_mean_3": {
+        "mae": 7.969047619047614,
+        "rmse": 11.053226204317424,
+        "bias_prediction_minus_truth": 1.835714285714285,
+        "video_cluster_bootstrap_95pct_mae_ci": [
+          5.282238442822384,
+          10.722610722610712
+        ]
+      },
+      "linear_trend_5": {
+        "mae": 8.269642857142857,
+        "rmse": 11.212320055713091,
+        "bias_prediction_minus_truth": -0.2017857142857148,
+        "video_cluster_bootstrap_95pct_mae_ci": [
+          5.553140096618358,
+          11.051643192488262
+        ]
+      },
+      "training_global_mean": {
+        "mae": 336.7892857142857,
+        "rmse": 506.4261205119821,
+        "bias_prediction_minus_truth": 23.662301587301588,
+        "video_cluster_bootstrap_95pct_mae_ci": [
+          161.1527777777778,
+          614.3501773049645
+        ]
+      }
+    }
+  },
+  "main_test_excluding_Testing_12": {
+    "n_frames": 124,
+    "n_videos": 8,
+    "models": {
+      "persistence": {
+        "mae": 6.588709677419355,
+        "rmse": 9.237458804308158,
+        "bias_prediction_minus_truth": 1.0887096774193548,
+        "video_cluster_bootstrap_95pct_mae_ci": [
+          4.421487603305785,
+          8.637096774193548
+        ]
+      },
+      "rolling_mean_3": {
+        "mae": 7.153225806451612,
+        "rmse": 10.11462088046584,
+        "bias_prediction_minus_truth": 2.153225806451612,
+        "video_cluster_bootstrap_95pct_mae_ci": [
+          4.7289972899729,
+          9.882666666666664
+        ]
+      },
+      "linear_trend_5": {
+        "mae": 7.283602150537635,
+        "rmse": 10.125489500977649,
+        "bias_prediction_minus_truth": -0.32526881720430106,
+        "video_cluster_bootstrap_95pct_mae_ci": [
+          4.863143631436315,
+          9.612204724409448
+        ]
+      },
+      "training_global_mean": {
+        "mae": 203.4807347670251,
+        "rmse": 217.67887606329563,
+        "bias_prediction_minus_truth": 203.4807347670251,
+        "video_cluster_bootstrap_95pct_mae_ci": [
+          145.29525089605735,
+          245.18234767025092
+        ]
+      }
+    }
+  },
+  "extreme_Testing_12": {
+    "n_frames": 16,
+    "n_videos": 1,
+    "models": {
+      "persistence": {
+        "mae": 14.375,
+        "rmse": 15.459624833740307,
+        "bias_prediction_minus_truth": 0.375,
+        "video_cluster_bootstrap_95pct_mae_ci": null
+      },
+      "rolling_mean_3": {
+        "mae": 14.291666666666629,
+        "rmse": 16.617845160482645,
+        "bias_prediction_minus_truth": -0.625,
+        "video_cluster_bootstrap_95pct_mae_ci": null
+      },
+      "linear_trend_5": {
+        "mae": 15.911458333333329,
+        "rmse": 17.476931720445407,
+        "bias_prediction_minus_truth": 0.7552083333333286,
+        "video_cluster_bootstrap_95pct_mae_ci": null
+      },
+      "training_global_mean": {
+        "mae": 1369.9305555555557,
+        "rmse": 1369.986556337234,
+        "bias_prediction_minus_truth": -1369.9305555555557,
+        "video_cluster_bootstrap_95pct_mae_ci": null
+      }
+    }
+  },
+  "limitations": [
+    "This is not image-based crowd counting and does not reproduce the published YOLO-World, SAM3Count, or APGCC evaluation.",
+    "Forecasts use prior ground-truth counts from the same test video, so this measures online temporal extrapolation with an observed count stream.",
+    "The benchmark does not evaluate MIIQAT's risk scoring or intervention policy.",
+    "The original HAJJv2 video files are not included in the annotation repository."
+  ]
+}
