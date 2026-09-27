@@ -1,6 +1,10 @@
 # Miqaat AI Architecture
 
-Privacy-preserving, network-level decision support for Hajj and Umrah crowd–traffic management.
+## What is implemented
+
+The current repository implements a **synthetic three-zone simulator**, an interpretable risk-scoring function, short what-if rollouts for candidate actions, and a benchmark against two simulated baselines. It does not ingest CCTV, GPS, gate-counter, or weather feeds. It does not implement a camera perception model or an independently tested privacy gate.
+
+## Intended system architecture
 
 ```text
 Cameras + shuttle GPS + gate counters + weather
@@ -15,15 +19,17 @@ Cameras + shuttle GPS + gate counters + weather
   -> observe outcome and re-estimate
 ```
 
-Each zone is a node; gates, corridors, roads and shuttle routes are edges. State includes density, capacity, inflow, outflow, speed, direction, vehicle queue, emergency access, weather and sensor confidence.
+Each zone is a node; gates, corridors, roads and shuttle routes are edges. Proposed state includes density, capacity, inflow, outflow, speed, direction, vehicle queue, emergency access, weather and sensor confidence.
 
-For each candidate action—open gate, reroute pedestrians, slow shuttles or do nothing—the digital twin propagates flow and computes:
+For each candidate action—open a gate, reroute pedestrians, slow shuttles or do nothing—the prototype's stylized simulator propagates state over a short horizon and computes an assumed risk score:
 
 ```text
 network risk = zone risk + downstream propagation + vehicle conflict
              + emergency-route penalty + uncertainty penalty
 ```
 
-Miqaat recommends the safest network-wide action, not merely the action that improves one zone. The first risk model is interpretable and rule/ML based. LSTM or a temporal Transformer is optional after sufficient sequential data is available.
+The score weights and simulated flow-transfer rules are transparent assumptions. They are not calibrated against field measurements. The current version is for reproducible software and policy experiments only; it is not a live digital twin or operational safety system.
 
-Modes: live monitoring, what-if simulation, staff training, and sensor-degraded operation. No faces, plates, names or persistent individual trajectories are retained.
+## Planned components
+
+Live sensor adapters, validated anonymous perception, a production privacy gate, site-specific calibration, stronger uncertainty handling, and human approval workflows remain future work. No faces, plates, names or persistent individual trajectories are needed by the present synthetic benchmark, but this does not constitute a tested privacy guarantee.
