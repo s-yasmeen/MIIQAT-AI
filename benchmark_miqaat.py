@@ -60,8 +60,19 @@ def aggregate(rows):
     for row in rows:
         by_seed.setdefault(row["seed"], []).append(row["network_horizon_mean"])
     seed_means = [statistics.mean(values) for values in by_seed.values()]
+    paired_no_action = []
+    paired_local = []
+    for seed in by_seed:
+        seed_rows = [row for row in rows if row["seed"] == seed]
+        paired_no_action.append(statistics.mean(row["network_horizon_mean"] - row["no_action_horizon_mean"] for row in seed_rows))
+        paired_local.append(statistics.mean(row["network_horizon_mean"] - row["local_horizon_mean"] for row in seed_rows))
     seed_sd = statistics.stdev(seed_means) if len(seed_means) > 1 else 0.0
     ci_half = 1.96 * seed_sd / math.sqrt(len(seed_means)) if seed_means else 0.0
+    def paired_ci(values):
+        avg = statistics.mean(values) if values else 0.0
+        sd = statistics.stdev(values) if len(values) > 1 else 0.0
+        half = 1.96 * sd / math.sqrt(len(values)) if values else 0.0
+        return [avg, avg - half, avg + half]
     network_mean = mean("network_horizon_mean")
     return {
         "intervals": len(rows),
@@ -70,6 +81,8 @@ def aggregate(rows):
         "mean_network_policy_horizon_risk": network_mean,
         "network_policy_seed_level_95pct_normal_ci": [max(0.0, network_mean - ci_half), min(1.0, network_mean + ci_half)],
         "independent_seed_count": len(seed_means),
+        "paired_network_minus_no_action_risk_mean_and_95pct_ci": paired_ci(paired_no_action),
+        "paired_network_minus_local_risk_mean_and_95pct_ci": paired_ci(paired_local),
         "mean_local_policy_horizon_risk": mean("local_horizon_mean"),
         "network_vs_no_action_reduction_pct": 100 * (baseline - mean("network_horizon_mean")) / baseline if baseline else 0,
         "local_vs_no_action_reduction_pct": 100 * (baseline - mean("local_horizon_mean")) / baseline if baseline else 0,
