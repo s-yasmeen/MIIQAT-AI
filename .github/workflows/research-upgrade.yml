@@ -1,0 +1,22 @@
+name: MIIQAT-AI research-upgrade checks
+
+on:
+  push:
+    branches: [research-upgrade]
+  pull_request:
+    branches: [main]
+
+jobs:
+  core-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -v
+      - name: Run CLI smoke test
+        run: python run_miqaat.py --steps 5 --horizon 2
+      - name: Run benchmark smoke test
+        run: python benchmark_miqaat.py --seeds 2 --steps 10 --horizon 2 --scenario mixed --out benchmark_smoke
