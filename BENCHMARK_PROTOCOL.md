@@ -2,37 +2,53 @@
 
 ## Research question
 
-In the current synthetic three-zone Hajj/Umrah transport network, does selecting an intervention by projected network-wide risk reduce the mean risk over a short rollout more than (a) doing nothing and (b) choosing an action by immediate risk reduction in the currently worst zone?
+In the current synthetic directed zone network, does a constraint-aware intervention evaluator reduce simulated network risk and capacity violations compared with (a) doing nothing and (b) selecting an action by immediate risk in the currently worst zone?
 
 ## Experimental design
 
-- Scenarios: normal flow, surge, shuttle delay, blocked emergency route, sensor outage, compound stressors, and a mixed periodic scenario.
+- Scenarios: normal flow, surge, shuttle delay, blocked emergency route, sensor outage, compound stressors, and mixed periodic conditions.
 - Seeds: 20 by default; each seed produces 120 time steps per scenario.
 - Decision horizon: 5 simulated steps.
-- Policies: network-risk selection, local-worst-zone selection, and no action.
-- Primary outcome: mean rollout risk (same risk function applied after each modeled step).
-- Secondary outcomes: percent risk reduction against no action, peak rollout risk, critical-risk interval rate, low-confidence interval rate, and heuristic warning threshold.
+- Policies: constraint-aware network objective, local-worst-zone baseline, and no action.
+- Primary outcome: mean simulated rollout risk.
+- Secondary outcomes: peak rollout risk, mean delay proxy, capacity-violation steps, critical-risk interval rate, low-sensor-reliability rate, and heuristic warning category.
 - Repeatability: fixed seed sequence beginning at 2026. CSV stores step-level outcomes; JSON stores aggregate summaries and assumptions.
-- Uncertainty: normal-approximation 95% intervals use independent seed-level means; paired policy differences are computed within each seed. Time steps are not treated as independent samples.
+- Uncertainty: percentile bootstrap intervals are calculated over independent seed-level clusters. Individual time steps are not treated as independent observations.
 
 Run:
 
-```bash
+~~~bash
 python3 benchmark_miqaat.py
-```
+~~~
 
-For a quick check:
+Quick smoke test:
 
-```bash
+~~~bash
 python3 benchmark_miqaat.py --seeds 2 --steps 30 --scenario mixed --out benchmark_smoke
-```
+~~~
 
 ## Interpretation limits
 
-This benchmark tests internal consistency and policy behavior under transparent synthetic assumptions. The scenario generator, intervention effects, network topology, and risk coefficients are not calibrated using Hajj operational measurements. The generated warning threshold is a heuristic risk-category mapping, not observed lead time. These results do not establish accuracy, safety, causal effectiveness, or readiness for deployment. External validation requires permitted data, documented annotations, pre-registered splits, calibrated flow dynamics, uncertainty analysis, and review with domain operators.
+The benchmark tests internal consistency and policy behavior under transparent synthetic assumptions. The scenario generator, intervention effects, network topology, flow-transfer fraction, and risk coefficients are not calibrated using Hajj operational measurements. Bootstrap intervals quantify variability across synthetic seeds only. They do not establish real-world uncertainty, safety, causal effectiveness, or readiness for deployment.
+
+The intervention evaluator uses a transparent objective combining mean risk, a normalized queue/delay proxy, and capacity-violation penalties. It is not a certified traffic optimizer, does not model pedestrian biomechanics, and does not establish that a real intervention is safe.
+
+The risk warning category is a heuristic mapping, not observed incident lead time. External validation requires permitted data, documented annotations, pre-registered splits, calibrated flow dynamics, independent evaluation, and review with domain operators.
+
+## Graph-temporal forecasting experiment
+
+The feature pipeline builds ordered graph-temporal examples with past-only features and future occupancy targets. Horizons are measured in sample intervals, not minutes. The chronological split purges examples around the split boundary to reduce overlapping-window target leakage.
+
+Dependency-free baselines are in miqaat/forecasting/baselines.py. The optional graph-aggregation + GRU architecture is in miqaat/forecasting/gcn_gru.py and requires PyTorch (pip install -r requirements-ml.txt). The model is a research implementation, not a trained or validated model. Use a fixed node order and a row-normalized adjacency matrix from miqaat.graph_engine.normalized_adjacency.
+
+Recommended evaluation:
+1. Split by time and, where possible, hold out entire videos/scenarios/sites.
+2. Fit all scalers and learned parameters on training data only.
+3. Use a separate calibration subset for conformal intervals.
+4. Keep a final untouched test set.
+5. Report MAE/RMSE by horizon and zone, calibration coverage/width, and seed/video-cluster uncertainty.
+6. Compare persistence, moving average, linear trend, tree-based models where available, temporal-only GRU/LSTM, and graph-temporal GCN-GRU.
 
 ## Separate HAJJv2 count-stream experiment
 
-The repository also includes an exploratory one-step-ahead forecasting benchmark on the public HAJJv2-CrowdCount annotations. It predicts the next count from prior human-verified counts in the same test video after a three-sample warm-up. The compared baselines are persistence, a three-count moving average, a five-observation linear trend, and the global mean of training annotations. MAE, RMSE, bias, and video-cluster bootstrap intervals are reported.
-
-This is a temporal forecasting task with observed count history. It is not image-based counting, does not reproduce the YOLO-World/SAM3Count/APGCC benchmark, and does not evaluate the MIIQAT risk or intervention policy. In the eight-video main test subset, 124 forecasts were scored after warm-up; persistence MAE was 6.59 people. See `benchmarks/hajj_count_forecast_summary.json` and run `benchmarks/hajj_count_forecast.py` using the train/test CSV files from the upstream annotation repository. The original video files are not redistributed by that repository and were not used in this experiment.
+The existing HAJJv2 count-stream benchmark is a separate exploratory experiment on human-verified annotations. It predicts a future count from prior counts within the same video. It is not image-based crowd counting and does not validate the synthetic zone simulator, intervention effects, or the graph-temporal model.
