@@ -45,6 +45,9 @@ class NetworkState:
     heat_index: float = 0.65
     # Optional directed edge weights. Missing weights are treated as equal shares.
     edge_weights: Dict[str, Dict[str, float]] = field(default_factory=dict)
+    # Optional evaluation grouping metadata; not part of the physical state.
+    scenario_id: str | None = None
+    video_id: str | None = None
 
     def __post_init__(self):
         if not 0.0 <= self.heat_index <= 1.0:
