@@ -2,7 +2,7 @@
 
 **MIIQAT-AI** is a research prototype for graph-based, network-level crowd-risk analysis and intervention evaluation in Hajj and Umrah scenarios.
 
-The current repository contains a reproducible synthetic zone-flow simulator, a transparent rule-based risk baseline, capacity-limited graph transfers, a constraint-aware intervention evaluator, graph-temporal data preparation, simple forecasting baselines, and an optional graph-aggregation + GRU model. It is not connected to live cameras, GPS, gate counters, or operational systems.
+The current repository contains a reproducible synthetic zone-flow simulator, a transparent rule-based risk baseline, conservative rule/AI risk fusion, capacity-limited graph transfers, a constraint-aware intervention evaluator, graph-temporal data preparation, simple forecasting baselines, and an optional graph-aggregation + GRU model. It is not connected to live cameras, GPS, gate counters, or operational systems.
 
 ## Implemented modules
 
@@ -10,11 +10,12 @@ The current repository contains a reproducible synthetic zone-flow simulator, a 
 - General directed graph validation and iterative downstream risk propagation.
 - Interventions that modify only their specified flow controls; population advances once per simulation step.
 - Capacity-limited inter-zone transfers; blocked transfers remain at the source zone.
+- Rule/AI risk fusion that prevents a HIGH or CRITICAL rule alert from being downgraded by the AI estimate.
 - Constraint-aware comparison of no action, gate opening, pedestrian rerouting and shuttle-flow reduction.
 - Graph-temporal feature construction with future targets and chronological purging.
 - Persistence, moving-average and linear-trend forecasting baselines.
-- Optional PyTorch graph-aggregation + GRU model.
-- Split-conformal interval utility and additive contribution explanations.
+- Optional PyTorch graph-aggregation + GRU model and training utilities.
+- Split-conformal interval utility and additive contribution explanations (not SHAP).
 
 ## Run the core prototype
 
@@ -48,7 +49,7 @@ Install the optional dependency:
 pip install -r requirements-ml.txt
 ~~~
 
-The model is in miqaat/forecasting/gcn_gru.py. It has not been trained or validated merely by being included in the repository. Training, hyperparameter selection, calibration and held-out evaluation remain research tasks.
+The model and training utilities are in miqaat/forecasting. They have not been trained or validated merely by being included in the repository. Training, hyperparameter selection, calibration and held-out evaluation remain research tasks.
 
 ## Separate HAJJv2 count-stream experiment
 
