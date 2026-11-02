@@ -1,4 +1,4 @@
-"""Stylized, deterministic zone-flow simulator; not a calibrated pedestrian model."""
+""""Stylized, deterministic zone-flow simulator; not a calibrated pedestrian model."""
 import random
 from copy import deepcopy
 
@@ -78,7 +78,12 @@ class SyntheticWorld:
 
 
 def apply_intervention(state: NetworkState, action: Intervention) -> NetworkState:
-    """Modify flow controls only; population advances exactly once in advance_state()."""
+    """Apply an intervention to a per-step working copy.
+
+    The returned flow fields represent the unmodified scenario inputs. This is
+    intentional: callers reapply a persistent action each simulation step, so
+    effects must not compound merely because another step was simulated.
+    """
     s = deepcopy(state)
 
     if action.gate_open:
@@ -106,10 +111,10 @@ def apply_intervention(state: NetworkState, action: Intervention) -> NetworkStat
         if action.shuttle_zone not in s.zones:
             raise ValueError(f"unknown shuttle zone: {action.shuttle_zone}")
         zone = s.zones[action.shuttle_zone]
+        # Apply the factor to the shuttle component for this step only. Do not
+        # overwrite the component or queue, otherwise repeated rollouts compound.
         reduced_shuttle_flow = zone.shuttle_inflow * (1.0 - action.shuttle_factor)
         zone.inflow = max(0.0, zone.inflow - reduced_shuttle_flow)
-        zone.shuttle_inflow *= action.shuttle_factor
-        zone.bus_queue = int(round(zone.bus_queue * action.shuttle_factor))
 
     return s
 
@@ -124,6 +129,8 @@ def advance_state(
     A fraction of each zone's outflow is treated as potentially entering connected
     downstream zones. Unaccepted transfer remains in the source zone. The fraction
     is a synthetic assumption and must be calibrated before operational interpretation.
+    Intervention effects are applied to a temporary per-step copy and are not
+    compounded across repeated calls with the same action.
     """
     if not 0.0 <= transfer_fraction <= 1.0:
         raise ValueError("transfer_fraction must be in [0, 1]")
@@ -171,5 +178,13 @@ def advance_state(
             0,
             int(round(provisional[zone_id] + incoming_by_target[zone_id] + blocked_by_source[zone_id])),
         )
+        # Persist only the population state. Keep scenario flow inputs intact so
+        # the same intervention is applied once, not cumulatively, next interval.
+        original = state.zones[zone_id]
+        zone.capacity = original.capacity
+        zone.inflow = original.inflow
+        zone.outflow = original.outflow
+        zone.shuttle_inflow = original.shuttle_inflow
+        zone.bus_queue = original.bus_queue
     s.timestamp += 1
     return s
