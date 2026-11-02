@@ -25,18 +25,10 @@ def _require_torch():
         raise ImportError("Training requires PyTorch; install requirements-ml.txt.")
 
 
-def train_model(
-    model,
-    train_x,
-    train_y,
-    adjacency,
-    validation_data=None,
-    epochs: int = 100,
-    learning_rate: float = 1e-3,
-    patience: int = 12,
-    seed: int = 2026,
-):
-    """Train with early stopping; inputs must already be normalized from train data."""
+def train_model(model, train_x, train_y, adjacency, validation_data=None,
+                epochs: int = 100, learning_rate: float = 1e-3,
+                patience: int = 12, seed: int = 2026):
+    """Train with early stopping; tensors must be normalized using training data only."""
     _require_torch()
     if epochs <= 0 or learning_rate <= 0 or patience <= 0:
         raise ValueError("epochs, learning_rate and patience must be positive")
@@ -57,6 +49,8 @@ def train_model(
         val_y = torch.as_tensor(val_y, dtype=torch.float32, device=device)
         if val_x.ndim != 4 or val_y.ndim != 3 or val_x.shape[0] != val_y.shape[0]:
             raise ValueError("validation tensors have invalid dimensions")
+        if val_x.shape[2] != x.shape[2]:
+            raise ValueError("validation node count differs from training node count")
         validation = (val_x, val_y)
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
@@ -82,6 +76,8 @@ def train_model(
                 monitored = train_value
             else:
                 val_prediction = model(validation[0], a)
+                if val_prediction.shape != validation[1].shape:
+                    raise ValueError("validation model output shape does not match target shape")
                 monitored = float(criterion(val_prediction, validation[1]).cpu())
         validation_losses.append(monitored)
 
@@ -106,7 +102,4 @@ def regression_metrics(prediction, target):
     if pred.shape != truth.shape or pred.numel() == 0:
         raise ValueError("prediction and target must have identical non-empty shapes")
     error = pred - truth
-    return {
-        "mae": float(error.abs().mean()),
-        "rmse": float(torch.sqrt((error ** 2).mean())),
-    }
+    return {"mae": float(error.abs().mean()), "rmse": float(torch.sqrt((error ** 2).mean()))}
