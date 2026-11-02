@@ -115,3 +115,55 @@ def group_holdout_split(examples: Sequence[GraphSequence], test_fraction: float 
     if not train or not test:
         raise ValueError("group split produced an empty partition")
     return train, test
+
+
+def fit_feature_normalizer(training_examples: Sequence[GraphSequence]):
+    """Fit per-feature mean/std from training windows only.
+
+    Returns (means, scales). Never pass validation, calibration, or test examples
+    to this function; reuse the returned values unchanged for every held-out split.
+    """
+    if not training_examples:
+        raise ValueError("training_examples cannot be empty")
+    width = len(FEATURE_NAMES)
+    columns = [[] for _ in range(width)]
+    for example in training_examples:
+        for timestep in example.features:
+            for node_features in timestep:
+                if len(node_features) != width:
+                    raise ValueError("feature width does not match FEATURE_NAMES")
+                for index, value in enumerate(node_features):
+                    value = float(value)
+                    if not math.isfinite(value):
+                        raise ValueError("training features must be finite")
+                    columns[index].append(value)
+    means, scales = [], []
+    for values in columns:
+        mean = sum(values) / len(values)
+        variance = sum((value - mean) ** 2 for value in values) / len(values)
+        scale = math.sqrt(variance)
+        means.append(mean)
+        scales.append(scale if scale > 1e-12 else 1.0)
+    return means, scales
+
+
+def normalize_feature_window(window, normalizer):
+    """Normalize one [time, nodes, features] window using training-only statistics."""
+    means, scales = normalizer
+    if len(means) != len(FEATURE_NAMES) or len(scales) != len(FEATURE_NAMES):
+        raise ValueError("normalizer width does not match FEATURE_NAMES")
+    result = []
+    for timestep in window:
+        normalized_timestep = []
+        for node_features in timestep:
+            if len(node_features) != len(FEATURE_NAMES):
+                raise ValueError("feature width does not match FEATURE_NAMES")
+            values = []
+            for value, mean, scale in zip(node_features, means, scales):
+                value = float(value)
+                if not math.isfinite(value):
+                    raise ValueError("features to normalize must be finite")
+                values.append((value - mean) / scale)
+            normalized_timestep.append(values)
+        result.append(normalized_timestep)
+    return result
