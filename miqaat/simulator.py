@@ -31,7 +31,8 @@ class SyntheticWorld:
                 "C": ZoneState("C", 300, 80, 10, 10, 1.0, "south", 0, True),
             },
             {"A": ["B"], "B": ["C"], "C": []},
-            scenario_id=f"{scenario}:{seed}",
+            scenario_id=scenario,
+            video_id=f"{scenario}:{seed}",
         )
         validate_graph(self.state.zones, self.state.edges)
 
