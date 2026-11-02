@@ -1,25 +1,41 @@
-# Dataset Plan
+# Dataset and Evaluation Plan
 
-No single public dataset contains Hajj crowds, shuttle telemetry, emergency routes, intervention outcomes and future-risk labels. Public data will train perception; controlled digital-twin data will evaluate prediction and interventions.
+No single public dataset is known to provide synchronized Hajj crowd counts, inter-zone flow, shuttle telemetry, route capacities, emergency-access state, intervention outcomes and future-risk labels. Dataset roles must therefore remain separate.
 
-| Module | Recommended data | Output |
+| Data source | Appropriate use | Does not establish |
 |---|---|---|
-| Hajj perception | [HAJJv2](https://github.com/KAU-Smart-Crowd/HAJJv2_dataset) | Hajj scenes, abnormal movement and objects |
-| Hajj counting | [HAJJv2-CrowdCount](https://arxiv.org/abs/2607.07322) | Dense-count accuracy and confidence |
-| Traffic anomalies | [AI City Track 3](https://www.aicitychallenge.org/2026-track3/) | Traffic anomalies and explanations |
-| Pedestrian safety | [AI City Track 2](https://www.aicitychallenge.org/2026-track2/) | Pedestrian–vehicle interactions |
-| Vehicle flow | [CityFlow](https://arxiv.org/abs/1903.09254) | Multi-camera vehicle flow |
-| Dense-crowd robustness | [UCF-QNRF](https://www.crcv.ucf.edu/data/ucf-qnrf/) | Extreme-density robustness |
-| Risk forecasting | Custom digital-twin sequences | Time-to-risk and propagation |
-| Intervention testing | Custom counterfactual scenarios | Before/after total network risk |
+| Existing MIIQAT synthetic scenarios | Simulator regression, controlled network-flow experiments | Real Hajj dynamics |
+| HAJJv2 videos/annotations | Hajj-scene perception and task-specific visual evaluation, subject to access/licensing | Network intervention effectiveness |
+| HAJJv2-CrowdCount annotations | Count-stream experiments and count-model benchmarking | Hajj-wide crowd-risk forecasting |
+| UCF-QNRF / ShanghaiTech | General crowd-counting benchmarks | Site-specific Hajj calibration |
+| ETH / UCY trajectories | Pedestrian trajectory methods on their original domains | Hajj route or capacity calibration |
+| Synthetic graph sequences | Controlled graph-temporal forecasting and ablation | Operational forecast accuracy |
 
-## Custom scenario schema
+## Separation of tasks
 
-```text
+1. **Perception/counting:** estimate aggregate counts from images or video. Report dataset-specific visual metrics.
+2. **Temporal forecasting:** predict future counts from historical count observations. Use chronological and video-separated splits.
+3. **Network forecasting:** predict zone-level future states using connected-zone features. This requires graph sequences with documented topology.
+4. **Intervention evaluation:** compare counterfactual actions in a calibrated or explicitly synthetic simulator. Do not infer causal intervention effects from observational count datasets.
+
+## Required schema for future graph sequences
+
+~~~text
 timestamp, zone_id, capacity, crowd_count, inflow, outflow,
-mean_speed, dominant_direction, bus_queue, emergency_route_open,
-camera_confidence, gps_confidence, gate_confidence, heat_index,
-intervention, downstream_risk, total_network_risk
-```
+mean_speed, bus_queue, emergency_route_open,
+camera_confidence, gps_confidence, gate_confidence,
+heat_index, incoming_edges, outgoing_edges, scenario_id
+~~~
 
-Scenarios: normal flow, rising inflow, opposing flow, shuttle delay, blocked emergency route, gate opening, pedestrian rerouting, shuttle throttling, camera failure and GPS failure. Synthetic scenarios must be labelled simulated and never presented as recorded Hajj incidents.
+Add directional-flow variables only when supported by a documented annotation or validated sensor process. Keep individual identities and persistent trajectories out of the research dataset unless a separately approved necessity and governance case exists.
+
+## Split and leakage controls
+
+- Preserve temporal ordering.
+- Hold out complete videos, sites or scenarios where the data permit.
+- Fit scalers and learned preprocessing only on training data.
+- Use a purge gap at least as large as the maximum forecast horizon for overlapping windows.
+- Reserve a calibration subset for uncertainty intervals.
+- Keep the final test set untouched until model selection is complete.
+
+Every dataset entry must record its source, license/access conditions, annotation provenance, sampling cadence, unit, missingness, and permitted research use.
