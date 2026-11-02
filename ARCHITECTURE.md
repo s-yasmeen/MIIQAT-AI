@@ -74,3 +74,17 @@ Rule-based safety baseline       Graph-temporal forecasting
 The prototype uses aggregate zone-level state and does not require face recognition or persistent individual identities. This design choice is not a tested privacy guarantee. Live data integration would require data minimization, documented authorization, retention limits, access control, security review, and a validated degraded-mode policy.
 
 All outputs must be labelled synthetic or research-only unless supported by separately documented real-world validation. No intervention should be executed automatically in an operational environment; any future use requires qualified human oversight and site-authorized safety procedures.
+
+
+## Recent correctness fixes
+
+The research branch now:
+1. Applies gate/shuttle controls to temporary per-step state without mutating stored flow inputs or repeatedly reducing queues.
+2. Rechecks reroute feasibility at every rollout step.
+3. Uses the finite-sample split-conformal order statistic, returning an infinite radius when rank (n+1) is required and rejecting non-finite residuals/predictions.
+4. Provides scenario/video group-held-out splitting in addition to chronological purging.
+5. Provides training-only feature-normalization helpers.
+6. Explicitly defines occupancy ratio, external exits, internal transfers, and blocked-transfer accounting.
+7. Labels warning categories and delay terms as heuristics/proxies, not measured incident lead time or travel time.
+
+These are implementation corrections and research controls, not evidence of external validity. The latest commit still requires a successful test/CI run and empirical model evaluation.
