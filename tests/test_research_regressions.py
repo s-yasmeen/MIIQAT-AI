@@ -93,3 +93,17 @@ def test_gate_intervention_does_not_mutate_input_state():
     before = (state.zones["B"].capacity, state.zones["B"].outflow)
     apply_intervention(state, Intervention("gate", "Open B", gate_open="B"))
     assert (state.zones["B"].capacity, state.zones["B"].outflow) == before
+
+
+def test_feature_normalizer_fits_training_examples_only_and_transforms():
+    from miqaat.feature_pipeline import (
+        GraphSequence, fit_feature_normalizer, normalize_feature_window, FEATURE_NAMES
+    )
+
+    first = [1.0] * len(FEATURE_NAMES)
+    second = [3.0] * len(FEATURE_NAMES)
+    example = GraphSequence(1, ("A",), [[first], [second]], {1: [0.2]})
+    means, scales = fit_feature_normalizer([example])
+    assert means == pytest.approx([2.0] * len(FEATURE_NAMES))
+    transformed = normalize_feature_window([[first]], (means, scales))
+    assert transformed[0][0] == pytest.approx([-1.0] * len(FEATURE_NAMES))
