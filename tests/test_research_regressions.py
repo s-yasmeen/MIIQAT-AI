@@ -60,3 +60,36 @@ def test_prediction_interval_rejects_nonfinite_prediction():
 def test_prediction_interval_rejects_nan_radius():
     with pytest.raises(ValueError, match="NaN"):
         prediction_interval(0.5, float("nan"))
+
+
+def test_group_holdout_split_never_leaks_group_ids():
+    from miqaat.feature_pipeline import GraphSequence, group_holdout_split
+
+    examples = [
+        GraphSequence(i, ("A",), [[[float(i)]]], {1: [float(i)]}, group_id=group)
+        for i, group in enumerate(["video_a", "video_a", "video_b", "video_b", "video_c", "video_c"])
+    ]
+    train, test = group_holdout_split(examples, test_fraction=1 / 3)
+    train_groups = {item.group_id for item in train}
+    test_groups = {item.group_id for item in test}
+    assert train_groups.isdisjoint(test_groups)
+    assert train and test
+
+
+def test_feature_pipeline_rejects_nonfinite_features():
+    from miqaat.feature_pipeline import zone_features
+    from miqaat.models import ZoneState
+
+    state = SyntheticWorld(seed=4, scenario="normal").state
+    state.zones["A"].mean_speed = float("nan")
+    with pytest.raises(ValueError, match="non-finite"):
+        zone_features(state, "A")
+
+
+def test_gate_intervention_does_not_mutate_input_state():
+    from miqaat.simulator import apply_intervention
+
+    state = SyntheticWorld(seed=8, scenario="normal").state
+    before = (state.zones["B"].capacity, state.zones["B"].outflow)
+    apply_intervention(state, Intervention("gate", "Open B", gate_open="B"))
+    assert (state.zones["B"].capacity, state.zones["B"].outflow) == before
