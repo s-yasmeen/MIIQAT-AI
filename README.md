@@ -60,3 +60,10 @@ The existing benchmarks/hajj_count_forecast.py evaluates temporal baselines on h
 See RESEARCH_GAPS.md for the literature-grounded research scope. The present simulator's flow rules, topology, intervention effects, risk coefficients and thresholds are assumptions, not calibrated Hajj measurements. No live sensing, validated incident prediction, operational digital twin, real-time safety assurance or field-tested intervention is claimed.
 
 Do not present synthetic output as recorded Hajj incidents or evidence that the system prevents harm. Operational use would require authorized data, calibrated models, independent validation, uncertainty and failure analysis, human oversight, and privacy/security review.
+
+
+## Research correctness and validation status
+
+Recent research-branch corrections address persistent-intervention compounding, stepwise reroute feasibility, conformal finite-sample handling, group-held-out evaluation, training-only normalization, and explicit definitions of occupancy ratio, flow accounting, warning categories, and delay proxies.
+
+These corrections are not equivalent to model validation. Confirm the latest CI/test run before merging. Graph-temporal model performance, empirical uncertainty calibration, Hajj-specific calibration, and operational intervention effectiveness remain unverified.
