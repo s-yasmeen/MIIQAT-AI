@@ -5,7 +5,8 @@ from miqaat.feature_pipeline import build_sequences, chronological_split
 from miqaat.forecasting.baselines import linear_trend_forecast, moving_average_forecast, persistence_forecast
 from miqaat.graph_engine import normalized_adjacency, propagate_max_risk, topological_order
 from miqaat.intervention_optimizer import optimize_intervention
-from miqaat.models import Intervention, NetworkState, ZoneState
+from miqaat.models import Intervention, NetworkState, RiskResult, ZoneState
+from miqaat.risk_fusion import fuse_risk
 from miqaat.simulator import SyntheticWorld, advance_state, apply_intervention
 from miqaat.uncertainty import conformal_radius, prediction_interval
 
@@ -17,9 +18,7 @@ class ResearchUpgradeTests(unittest.TestCase):
 
     def test_unrelated_intervention_has_no_shuttle_side_effect(self):
         before = self.state.zones["B"]
-        changed = apply_intervention(
-            self.state, Intervention("open_a", "Open A", gate_open="A")
-        )
+        changed = apply_intervention(self.state, Intervention("open_a", "Open A", gate_open="A"))
         after = changed.zones["B"]
         self.assertEqual(after.inflow, before.inflow)
         self.assertEqual(after.outflow, before.outflow)
@@ -27,17 +26,14 @@ class ResearchUpgradeTests(unittest.TestCase):
 
     def test_shuttle_action_changes_only_tracked_shuttle_component(self):
         changed = apply_intervention(
-            self.state,
-            Intervention("slow", "Reduce shuttles", shuttle_factor=0.5, shuttle_zone="B"),
+            self.state, Intervention("slow", "Reduce shuttles", shuttle_factor=0.5, shuttle_zone="B")
         )
         self.assertLess(changed.zones["B"].shuttle_inflow, self.state.zones["B"].shuttle_inflow)
         self.assertEqual(changed.zones["A"], self.state.zones["A"])
         self.assertEqual(changed.zones["C"], self.state.zones["C"])
 
     def test_apply_intervention_does_not_advance_population(self):
-        changed = apply_intervention(
-            self.state, Intervention("open", "Open B", gate_open="B")
-        )
+        changed = apply_intervention(self.state, Intervention("open", "Open B", gate_open="B"))
         self.assertEqual(changed.zones["B"].crowd_count, self.state.zones["B"].crowd_count)
         advanced = advance_state(self.state, Intervention("open", "Open B", gate_open="B"))
         self.assertEqual(advanced.timestamp, self.state.timestamp + 1)
@@ -69,15 +65,15 @@ class ResearchUpgradeTests(unittest.TestCase):
         self.assertLessEqual(next_state.zones["B"].crowd_count, 100)
         self.assertGreater(next_state.zones["A"].crowd_count, 40)
 
-    def test_forecast_sequence_uses_future_targets(self):
-        states = [self.world.step() for _ in range(20)]
+    def test_forecast_sequence_and_purged_chronological_split(self):
+        states = [self.world.step() for _ in range(24)]
         examples = build_sequences(states, history=4, horizons=(1, 3))
         self.assertTrue(examples)
-        first = examples[0]
-        self.assertEqual(len(first.features), 4)
-        self.assertEqual(set(first.targets), {1, 3})
+        self.assertEqual(len(examples[0].features), 4)
+        self.assertEqual(set(examples[0].targets), {1, 3})
         train, test = chronological_split(examples, 0.7)
         self.assertLess(train[-1].timestamp, test[0].timestamp)
+        self.assertGreaterEqual(test[0].timestamp - train[-1].timestamp, 4)
 
     def test_baselines_return_requested_horizons(self):
         values = [1, 2, 3]
@@ -97,6 +93,12 @@ class ResearchUpgradeTests(unittest.TestCase):
             {"density": 0.3, "flow": 0.1},
         )
         self.assertAlmostEqual(sum(value for _, value in values), 0.28)
+
+    def test_rule_alert_cannot_be_downgraded_by_ai_forecast(self):
+        rule = RiskResult(0.60, "HIGH", 3, {"A": 0.60}, "rule alert", 0.9)
+        fused = fuse_risk(rule, predicted_risk=0.10, ai_weight=0.9)
+        self.assertGreaterEqual(fused.risk, rule.total_risk)
+        self.assertEqual(fused.rule_level, "HIGH")
 
     def test_optimizer_returns_a_feasible_candidate(self):
         best, evaluations = optimize_intervention(self.state, horizon=3)
