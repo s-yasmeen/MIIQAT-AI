@@ -1,4 +1,4 @@
-""""Stylized, deterministic zone-flow simulator; not a calibrated pedestrian model."""
+"""Stylized, deterministic zone-flow simulator; not a calibrated pedestrian model."""
 import random
 from copy import deepcopy
 
