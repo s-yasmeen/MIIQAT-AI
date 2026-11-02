@@ -61,6 +61,9 @@ def chronological_split(examples: Sequence[GraphSequence], train_fraction: float
         raise ValueError("train_fraction must be strictly between 0 and 1")
     if len(examples) < 3:
         raise ValueError("at least three examples are required")
+    timestamps = [item.timestamp for item in examples]
+    if timestamps != sorted(timestamps):
+        raise ValueError("examples must be sorted chronologically")
     split_at = int(len(examples) * train_fraction)
     max_horizon = max(examples[0].targets)
     gap = max_horizon if purge_gap is None else purge_gap
