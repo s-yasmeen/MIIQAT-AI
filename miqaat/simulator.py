@@ -7,12 +7,8 @@ from .models import Intervention, NetworkState, ZoneState
 
 
 SCENARIOS = (
-    "normal",
-    "surge",
-    "shuttle_delay",
-    "blocked_emergency_route",
-    "sensor_outage",
-    "compound",
+    "normal", "surge", "shuttle_delay", "blocked_emergency_route",
+    "sensor_outage", "compound",
 )
 NO_ACTION = Intervention("no_action", "No intervention")
 
@@ -35,6 +31,7 @@ class SyntheticWorld:
                 "C": ZoneState("C", 300, 80, 10, 10, 1.0, "south", 0, True),
             },
             {"A": ["B"], "B": ["C"], "C": []},
+            scenario_id=f"{scenario}:{seed}",
         )
         validate_graph(self.state.zones, self.state.edges)
 
@@ -78,14 +75,8 @@ class SyntheticWorld:
 
 
 def apply_intervention(state: NetworkState, action: Intervention) -> NetworkState:
-    """Apply an intervention to a per-step working copy.
-
-    The returned flow fields represent the unmodified scenario inputs. This is
-    intentional: callers reapply a persistent action each simulation step, so
-    effects must not compound merely because another step was simulated.
-    """
+    """Apply a per-step control to a temporary copy without mutating stored inputs."""
     s = deepcopy(state)
-
     if action.gate_open:
         if action.gate_open not in s.zones:
             raise ValueError(f"unknown gate zone: {action.gate_open}")
@@ -111,38 +102,31 @@ def apply_intervention(state: NetworkState, action: Intervention) -> NetworkStat
         if action.shuttle_zone not in s.zones:
             raise ValueError(f"unknown shuttle zone: {action.shuttle_zone}")
         zone = s.zones[action.shuttle_zone]
-        # Apply the factor to the shuttle component for this step only. Do not
-        # overwrite the component or queue, otherwise repeated rollouts compound.
+        # shuttle_factor is the retained fraction: 0.65 means a 35% reduction.
         reduced_shuttle_flow = zone.shuttle_inflow * (1.0 - action.shuttle_factor)
         zone.inflow = max(0.0, zone.inflow - reduced_shuttle_flow)
-
     return s
 
 
-def advance_state(
-    state: NetworkState,
-    action: Intervention = NO_ACTION,
-    transfer_fraction: float = 0.25,
-) -> NetworkState:
+def advance_state(state: NetworkState, action: Intervention = NO_ACTION,
+                  transfer_fraction: float = 0.25) -> NetworkState:
     """Advance one interval with simultaneous, capacity-limited inter-zone transfers.
 
-    A fraction of each zone's outflow is treated as potentially entering connected
-    downstream zones. Unaccepted transfer remains in the source zone. The fraction
-    is a synthetic assumption and must be calibrated before operational interpretation.
-    Intervention effects are applied to a temporary per-step copy and are not
-    compounded across repeated calls with the same action.
+    The model assumes each zone's outflow is total departures. A configured fraction
+    is treated as potential internal transfer along outgoing edges; the remainder
+    exits the modeled network. A transfer that cannot enter its destination is
+    returned to its source. This is a stylized accounting convention, not calibrated
+    physical crowd-flow dynamics. Counts are rounded to integers each interval.
     """
     if not 0.0 <= transfer_fraction <= 1.0:
         raise ValueError("transfer_fraction must be in [0, 1]")
     s = apply_intervention(state, action)
     validate_graph(s.zones, s.edges)
-
     provisional = {
         zone_id: max(0.0, zone.crowd_count + zone.inflow - zone.outflow)
         for zone_id, zone in s.zones.items()
     }
-    planned = {}
-    incoming_total = {zone_id: 0.0 for zone_id in s.zones}
+    planned, incoming_total = {}, {zone_id: 0.0 for zone_id in s.zones}
     for source_id, source in s.zones.items():
         targets = s.edges.get(source_id, [])
         if not targets:
@@ -151,8 +135,7 @@ def advance_state(
         weights = s.edge_weights.get(source_id, {})
         denominator = sum(weights.get(target, 1.0) for target in targets)
         for target in targets:
-            share = weights.get(target, 1.0) / denominator
-            flow = amount * share
+            flow = amount * weights.get(target, 1.0) / denominator
             planned[(source_id, target)] = flow
             incoming_total[target] += flow
 
@@ -167,19 +150,15 @@ def advance_state(
 
     blocked_by_source = {zone_id: 0.0 for zone_id in s.zones}
     incoming_by_target = {zone_id: 0.0 for zone_id in s.zones}
-    for edge, flow in planned.items():
-        source_id, target_id = edge
-        admitted = accepted.get(edge, 0.0)
+    for (source_id, target_id), flow in planned.items():
+        admitted = accepted.get((source_id, target_id), 0.0)
         incoming_by_target[target_id] += admitted
         blocked_by_source[source_id] += flow - admitted
 
     for zone_id, zone in s.zones.items():
-        zone.crowd_count = max(
-            0,
-            int(round(provisional[zone_id] + incoming_by_target[zone_id] + blocked_by_source[zone_id])),
-        )
-        # Persist only the population state. Keep scenario flow inputs intact so
-        # the same intervention is applied once, not cumulatively, next interval.
+        zone.crowd_count = max(0, int(round(
+            provisional[zone_id] + incoming_by_target[zone_id] + blocked_by_source[zone_id]
+        )))
         original = state.zones[zone_id]
         zone.capacity = original.capacity
         zone.inflow = original.inflow
