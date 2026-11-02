@@ -2,7 +2,7 @@
 
 ## Research objective
 
-MIIQAT-AI investigates network-level crowd-risk forecasting and intervention evaluation across connected Hajj/Umrah zones. The current repository is a research prototype using synthetic zone-flow data plus a separate exploratory HAJJv2 count-stream benchmark. It is not connected to live operational systems.
+MIIQAT-AI investigates network-level crowd-risk forecasting and intervention evaluation across connected Hajj/Umrah zones. The repository is a research prototype using synthetic zone-flow data plus a separate exploratory HAJJv2 count-stream benchmark. It is not connected to live operational systems.
 
 ## Current implementation
 
@@ -15,11 +15,13 @@ MIIQAT-AI investigates network-level crowd-risk forecasting and intervention eva
 | General directed graph validation | Implemented |
 | Cyclic fixed-point risk propagation | Implemented |
 | Transparent rule-based risk baseline | Implemented; coefficients remain assumptions |
+| Rule/AI risk fusion with no-downgrade safety floor | Implemented as a decision-support guardrail |
 | Constraint-aware intervention evaluator | Implemented for encoded constraints |
 | Graph-temporal feature and target construction | Implemented |
 | Chronological split with purge gap | Implemented |
 | Persistence, moving-average and linear-trend baselines | Implemented |
 | Optional graph-aggregation + GRU model | Implemented as code; training and validation not yet performed |
+| Optional PyTorch training/evaluation utilities | Implemented as code; not yet run on a research dataset |
 | Split-conformal interval utility | Implemented; calibration not yet performed |
 | Additive feature contribution explanations | Implemented for additive scores; not SHAP |
 | Live CCTV/GPS/gate/weather adapters | Not implemented |
@@ -44,7 +46,7 @@ Rule-based safety baseline       Graph-temporal forecasting
         |                               |
         +---------------+---------------+
                         v
-              Risk fusion / uncertainty
+          Conservative rule/AI risk fusion
                         |
                         v
         Constraint-aware intervention evaluation
@@ -65,6 +67,7 @@ Rule-based safety baseline       Graph-temporal forecasting
 - Shuttle flow is represented separately from total zone inflow where the synthetic generator provides that component.
 - The rule-based risk coefficients and risk thresholds are transparent assumptions, not learned parameters or operational standards.
 - The intervention delay term is a normalized queue proxy, not measured travel time.
+- The risk-fusion floor prevents an AI forecast from downgrading a HIGH or CRITICAL rule alert; this is a software guardrail, not a certified safety case.
 
 ## Safety and data governance
 
