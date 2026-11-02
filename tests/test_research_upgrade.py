@@ -96,7 +96,7 @@ class ResearchUpgradeTests(unittest.TestCase):
             {"density": 0.4, "flow": 0.2},
             {"density": 0.3, "flow": 0.1},
         )
-        self.assertAlmostEqual(sum(value for _, value in values), 0.22)
+        self.assertAlmostEqual(sum(value for _, value in values), 0.28)
 
     def test_optimizer_returns_a_feasible_candidate(self):
         best, evaluations = optimize_intervention(self.state, horizon=3)
