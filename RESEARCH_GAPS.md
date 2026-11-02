@@ -76,3 +76,17 @@ Still outstanding: training the GCN-GRU on an appropriately structured dataset, 
 4. R. Alturki, M. Wedyan and A. Nasayreh, “AI-powered directional anomaly detection in dense hajj crowds for proactive safety management,” Journal of King Saud University Computer and Information Sciences, 2026. DOI: 10.1007/s44443-026-00793-5.
 5. A. H. Qamloa, G. M. Bahaab and A. R. Seadawy, “Fractional optimal control of a mathematical model for managing hajj and umrah pilgrims’ crowds,” Journal of Taibah University for Science, 2026. DOI: 10.1080/16583655.2026.2718559.
 6. “Enhancing Hajj and Umrah Rituals and Crowd Management Through AI Technologies: A Comprehensive Survey of Applications and Future Directions,” IEEE Access, 2024, pp. 161820–161841. DOI: 10.1109/ACCESS.2024.3487923.
+
+
+## Implementation corrections and remaining validation
+
+The current `research-upgrade` branch contains code-level corrections for intervention compounding, repeated shuttle reduction, per-step reroute feasibility, conformal finite-sample rank handling, grouped scenario/video splits, training-only normalization, and explicit simulator/feature semantics.
+
+The contribution remains a hypothesis, not an established result. The branch does not yet establish:
+- trained and independently evaluated GCN-GRU superiority;
+- empirical conformal coverage on a held-out calibration set;
+- calibrated Hajj/Umrah network-flow dynamics;
+- measured incident warning lead time or travel-time reduction;
+- field-tested intervention safety or causal effectiveness.
+
+Before publication, run CI and smoke tests on the exact final commit; conduct scenario/video/site-held-out model comparisons; report horizon- and zone-level MAE/RMSE, calibration coverage/width, capacity violations, and seed/group-cluster confidence intervals; and keep synthetic simulator findings separate from the HAJJv2 count-stream experiment. Do not claim operational deployment readiness.
