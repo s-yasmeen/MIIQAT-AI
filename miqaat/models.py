@@ -92,6 +92,7 @@ class Intervention:
 class RiskResult:
     total_risk: float
     level: str
+    # Legacy field name: this stores a heuristic category value, not measured minutes of lead time.
     warning_minutes: int
     zone_risk: Dict[str, float]
     explanation: str
