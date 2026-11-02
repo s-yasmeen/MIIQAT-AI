@@ -8,7 +8,7 @@ The literature already contains Hajj/Umrah crowd-monitoring, anomaly detection, 
 |---|---|---|
 | Halboob et al. (2024), IEEE Access, DOI 10.1109/ACCESS.2024.3350188 | Umrah crowd-management intelligence framework using data collection, correlation, rules and alerts | Basic monitoring, rule-based anomaly detection and alerts are not novel claims |
 | Alzahrani & Algethami (2025), Electronics 14(13), 2507 | Hajj crowd anomaly detection and LSTM-based forecasting | Generic anomaly detection plus forecasting is not a sufficient novelty claim |
-| IEEE ICAIII (2026), DOI 10.1109/ICAIII69475.2026.11521402 | Random Forest classification of future crowd density 60 minutes ahead | Density prediction alone is not a defensible novelty claim |
+| IEEE ICAIII (2026), DOI 10.1109/ICAIII.2026.11521402 | Random Forest classification of future crowd density 60 minutes ahead | Density prediction alone is not a defensible novelty claim |
 | Alturki et al. (2026), DOI 10.1007/s44443-026-00793-5 | HAJJv2-derived directional anomaly and counter-flow early-warning research | Directional anomaly detection and proactive warnings alone are not novel |
 | Qamloa et al. (2026), DOI 10.1080/16583655.2026.2718559 | Fractional optimal control for guidance, diversion and emergency interventions | Mathematical crowd intervention optimization alone is not novel |
 | IEEE Access Hajj/Umrah AI survey (2024), DOI 10.1109/ACCESS.2024.3487923 | Broad taxonomy of AI applications and open challenges | The final paper needs a systematic, updated comparison, not a small set of citations |
@@ -44,7 +44,7 @@ Provide feature contributions, forecast uncertainty, feasibility status and a re
 
 - H1: A graph-temporal model will outperform matched temporal-only baselines on at least one pre-registered multi-zone forecasting metric; the result must be reported by horizon and scenario.
 - H2: Removing graph connectivity will reduce performance in scenarios where inter-zone dependencies are deliberately present.
-- H3: A separately calibrated conformal method will achieve empirical coverage close to its nominal level on exchangeable held-out examples; coverage under distribution shift must be reported separately.
+- H3: A separately calibrated conformal method will achieve empirical coverage close to its nominal level on an untouched test set; coverage under distribution shift must be reported separately.
 - H4: The constraint-aware policy will reduce the pre-specified synthetic objective without increasing hard-constraint violations relative to the baselines.
 
 These are testable hypotheses, not results.
@@ -64,9 +64,9 @@ These are testable hypotheses, not results.
 
 ## 6. Current implementation versus research still outstanding
 
-Implemented in the research-upgrade branch: simulator corrections, general graph utilities, risk propagation, graph-temporal feature construction, dependency-free forecast baselines, optional GCN-GRU architecture, conformal interval utility, additive contribution explanations, constraint-aware intervention evaluation and regression tests.
+Implemented in the research-upgrade branch: simulator corrections, general graph utilities, risk propagation, graph-temporal feature construction, dependency-free forecast baselines, optional GCN-GRU architecture and training utilities, split-conformal interval utility, additive contribution explanations, a conservative rule/AI fusion guardrail, constraint-aware intervention evaluation, regression tests and CI smoke checks.
 
-Still outstanding: executing and passing the complete test suite, training the GCN-GRU, tuning hyperparameters, calibrating intervals, running final held-out comparisons and ablations, validating the flow simulator against permitted operational data, and completing a systematic literature review.
+Still outstanding: training the GCN-GRU on an appropriately structured dataset, hyperparameter selection, calibrating intervals, running final held-out comparisons and ablations, validating the flow simulator against permitted operational data, and completing a systematic literature review. Passing software tests does not validate the research hypotheses.
 
 ## 7. Selected references
 
