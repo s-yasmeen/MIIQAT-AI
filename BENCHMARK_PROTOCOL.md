@@ -52,3 +52,16 @@ Recommended evaluation:
 ## Separate HAJJv2 count-stream experiment
 
 The existing HAJJv2 count-stream benchmark is a separate exploratory experiment on human-verified annotations. It predicts a future count from prior counts within the same video. It is not image-based crowd counting and does not validate the synthetic zone simulator, intervention effects, or the graph-temporal model.
+
+
+## Corrections and interpretation controls
+
+The current research branch includes regression fixes for persistent gate/shuttle actions, per-step reroute feasibility, and the finite-sample split-conformal quantile. Tests are included, but these changes must be verified by a successful CI run before they are considered validated.
+
+- Scenario/video/site leakage: use `group_holdout_split` with scenario IDs or explicit video/site IDs so groups do not cross partitions. The ordinary chronological split is a complementary within-group evaluation, not a substitute for grouped holdout.
+- Preprocessing leakage: fit `fit_feature_normalizer` on training examples only, then reuse its parameters unchanged for validation, calibration, and test data.
+- Feature meaning: `capacity_utilization` is crowd_count divided by nominal zone capacity; it is not persons-per-square-metre density. Targets use the same occupancy ratio.
+- Flow accounting: the simulator treats the configured fraction of outflow as potential internal movement. The remainder is an external network exit; blocked transfers are returned to their source. This accounting is an explicit synthetic convention and is not calibrated pedestrian dynamics.
+- Warning output: warning categories are heuristic risk bands. They are not lead-time forecasts and must not be described as minutes of advance warning.
+- Delay metric: the objective's normalized positive inflow-minus-outflow quantity is a flow-imbalance proxy, not measured waiting time or travel time.
+- Uncertainty: an infinite conformal radius is the conservative finite-sample result when the required rank exceeds the calibration sample. Do not silently clip it to a finite maximum. Empirical coverage and interval width must be measured on held-out calibration/test data.
