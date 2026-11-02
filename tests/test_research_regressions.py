@@ -107,3 +107,22 @@ def test_feature_normalizer_fits_training_examples_only_and_transforms():
     assert means == pytest.approx([2.0] * len(FEATURE_NAMES))
     transformed = normalize_feature_window([[first]], (means, scales))
     assert transformed[0][0] == pytest.approx([-1.0] * len(FEATURE_NAMES))
+
+
+def test_internal_transfer_and_external_exit_accounting_is_explicit():
+    from miqaat.models import NetworkState, ZoneState
+    from miqaat.simulator import advance_state
+
+    state = NetworkState(
+        0,
+        {
+            "A": ZoneState("A", 100, 50, 10, 10, 1.0, "east", 0, True),
+            "B": ZoneState("B", 100, 20, 5, 4, 1.0, "east", 0, True),
+        },
+        {"A": ["B"], "B": []},
+    )
+    # At transfer_fraction=1, A's outflow is internal transfer. B has no
+    # downstream edge, so its outflow exits the modelled network.
+    after = advance_state(state, transfer_fraction=1.0)
+    expected = 70 + 15 - 4
+    assert sum(zone.crowd_count for zone in after.zones.values()) == expected
