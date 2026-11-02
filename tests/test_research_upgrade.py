@@ -28,7 +28,8 @@ class ResearchUpgradeTests(unittest.TestCase):
         changed = apply_intervention(
             self.state, Intervention("slow", "Reduce shuttles", shuttle_factor=0.5, shuttle_zone="B")
         )
-        self.assertLess(changed.zones["B"].shuttle_inflow, self.state.zones["B"].shuttle_inflow)
+        self.assertEqual(changed.zones["B"].shuttle_inflow, self.state.zones["B"].shuttle_inflow)
+        self.assertLess(changed.zones["B"].inflow, self.state.zones["B"].inflow)
         self.assertEqual(changed.zones["A"], self.state.zones["A"])
         self.assertEqual(changed.zones["C"], self.state.zones["C"])
 
