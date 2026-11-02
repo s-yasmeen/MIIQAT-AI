@@ -19,7 +19,9 @@ class InterventionEvaluation:
 
 
 def _feasibility(state, action: Intervention):
-    if action.reroute_from:
+    if action.reroute_from or action.reroute_to:
+        if not action.reroute_from or not action.reroute_to:
+            return False, "rerouting requires both source and target zones"
         if action.reroute_from not in state.zones or action.reroute_to not in state.zones:
             return False, "unknown reroute zone"
         source = state.zones[action.reroute_from]
