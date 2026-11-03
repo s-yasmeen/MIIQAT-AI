@@ -22,3 +22,12 @@ jobs:
         run: python run_miqaat.py --steps 5 --horizon 2
       - name: Run benchmark smoke test
         run: python benchmark_miqaat.py --seeds 2 --steps 10 --horizon 2 --scenario mixed --out benchmark_smoke
+      - name: Run multi-scenario synthetic validation
+        run: python benchmark_miqaat.py --seeds 10 --steps 60 --horizon 5 --scenario all --out validation_results
+      - name: Upload synthetic validation artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: miiqaat-synthetic-validation
+          path: validation_results/
+          if-no-files-found: error
+          retention-days: 30
