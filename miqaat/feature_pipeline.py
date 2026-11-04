@@ -110,24 +110,43 @@ def build_sequences(states: Sequence, history: int = 12, horizons: Sequence[int]
 
 
 def chronological_split(examples: Sequence[GraphSequence], train_fraction: float = 0.70, purge_gap=None):
-    """Chronological split with a purge gap to reduce overlapping target leakage."""
+    """Chronological split independently within each group, with a per-group purge gap.
+
+    This is a within-group temporal evaluation. Use group_holdout_split separately
+    when the target is generalization to unseen videos, scenarios, or sites.
+    """
     if not 0.0 < train_fraction < 1.0:
         raise ValueError("train_fraction must be strictly between 0 and 1")
     if len(examples) < 3:
         raise ValueError("at least three examples are required")
-    timestamps = [item.timestamp for item in examples]
-    if timestamps != sorted(timestamps):
-        raise ValueError("examples must be sorted chronologically")
-    split_at = int(len(examples) * train_fraction)
-    max_horizon = max(examples[0].targets)
+    max_horizon = max(max(item.targets) for item in examples)
     gap = max_horizon if purge_gap is None else purge_gap
     if not isinstance(gap, int) or gap < 0:
         raise ValueError("purge_gap must be a non-negative integer")
-    train_end = split_at - gap
-    if train_end <= 0 or split_at >= len(examples):
-        raise ValueError("not enough examples after applying chronological purge gap")
-    return list(examples[:train_end]), list(examples[split_at:])
 
+    grouped = {}
+    for item in examples:
+        grouped.setdefault(item.group_id or "__ungrouped__", []).append(item)
+
+    train, test = [], []
+    for group_id, group_examples in sorted(grouped.items()):
+        ordered = sorted(group_examples, key=lambda item: item.timestamp)
+        timestamps = [item.timestamp for item in ordered]
+        if len(set(timestamps)) != len(timestamps):
+            raise ValueError(f"timestamps must be unique within group {group_id}")
+        split_at = int(len(ordered) * train_fraction)
+        train_end = split_at - gap
+        if train_end <= 0 or split_at >= len(ordered):
+            raise ValueError(
+                f"not enough examples in group {group_id} after applying purge gap"
+            )
+        train.extend(ordered[:train_end])
+        test.extend(ordered[split_at:])
+
+    return (
+        sorted(train, key=lambda item: (item.timestamp, item.group_id or "")),
+        sorted(test, key=lambda item: (item.timestamp, item.group_id or "")),
+    )
 
 def group_holdout_split(examples: Sequence[GraphSequence], test_fraction: float = 0.20, group_ids=None):
     """Split by whole scenario/video/site groups; no group may appear on both sides.
