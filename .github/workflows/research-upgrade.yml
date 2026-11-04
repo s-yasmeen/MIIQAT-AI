@@ -24,6 +24,15 @@ jobs:
         run: python benchmark_miqaat.py --seeds 2 --steps 10 --horizon 2 --scenario mixed --out benchmark_smoke
       - name: Run multi-scenario synthetic validation
         run: python benchmark_miqaat.py --seeds 10 --steps 60 --horizon 5 --scenario all --out validation_results
+      - name: Run held-out HAJJv2 count-stream benchmark
+        run: |
+          mkdir -p /tmp/hajjv2_annotations
+          curl -fsSL https://raw.githubusercontent.com/reem-8899/HAJJv2-CrowdCount/main/annotations/train_counts.csv -o /tmp/hajjv2_annotations/train_counts.csv
+          curl -fsSL https://raw.githubusercontent.com/reem-8899/HAJJv2-CrowdCount/main/annotations/test_counts.csv -o /tmp/hajjv2_annotations/test_counts.csv
+          python benchmarks/hajj_count_forecast.py \
+            --train-csv /tmp/hajjv2_annotations/train_counts.csv \
+            --test-csv /tmp/hajjv2_annotations/test_counts.csv \
+            --out-dir validation_results/hajj_count_forecast
       - name: Upload synthetic validation artifacts
         uses: actions/upload-artifact@v4
         with:
