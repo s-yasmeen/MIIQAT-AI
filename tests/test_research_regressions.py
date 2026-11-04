@@ -156,5 +156,28 @@ class ResearchRegressionTests(unittest.TestCase):
         self.assertEqual(sum(zone.crowd_count for zone in after.zones.values()), 81)
 
 
+    def test_chronological_split_purges_each_group_independently(self):
+        from miqaat.feature_pipeline import chronological_split
+
+        examples = [
+            GraphSequence(
+                timestamp=t,
+                zone_ids=("A",),
+                features=[[[float(t)]]],
+                targets={1: [float(t + 1)]},
+                group_id=group,
+            )
+            for group, offset in (("video_a", 0), ("video_b", 100))
+            for t in range(10)
+        ]
+        train, test = chronological_split(examples, train_fraction=0.7)
+        for group in ("video_a", "video_b"):
+            train_times = sorted(item.timestamp for item in train if item.group_id == group)
+            test_times = sorted(item.timestamp for item in test if item.group_id == group)
+            self.assertEqual(train_times, list(range(6)))
+            self.assertEqual(test_times, list(range(7, 10)))
+            self.assertTrue(set(train_times).isdisjoint(test_times))
+
+
 if __name__ == "__main__":
     unittest.main()
