@@ -87,3 +87,26 @@ Keep external data out of version control. Store source URLs, retrieval date, ch
 5. Implement a Masjid raw-frame inventory and aggregate counting evaluation only after the image metadata and permitted use are confirmed.
 6. Keep the final evaluation video/clip-held-out. Report source-specific metrics and limitations separately.
 7. Only after obtaining synchronized zone IDs, timestamps, camera-to-zone mapping and documented adjacency should either source be considered for graph-temporal model input.
+
+
+## Implementation status — 4 November 2026
+
+- Added `benchmarks/masjid_frame_inventory.py`. It inventories filenames, file sizes, extensions and optional SHA-256 checksums under a user-supplied `RawDataFrames` directory. It does not decode image pixels and excludes directories whose names indicate face/person/identity/subject/processed imagery.
+- Hardened `benchmarks/hajj_count_forecast.py` to validate required columns, reject duplicate video timestamps before insertion, and reject negative or non-finite counts.
+- Added `tests/test_dataset_tools.py` for duplicate timestamps, invalid counts and exclusion of face-image directories.
+- No source dataset files have been copied into this repository. No Masjid image pixels have been inspected or processed.
+
+### Verified source metadata
+
+The public HAJJv2-CrowdCount README describes 18 videos, 9 train / 9 test, 383 manually counted frames at 1 FPS, and a maximum annotated count of 1,800. Its annotation repository currently labels its license and citation as TBC. The source README's stated schema is `video,time_s,GT_count`. The released CSVs use that schema.
+
+The Masjid dataset paper describes 4,613 raw frames from 34 clips across 24 cameras, alongside 2,000 face crops for 250 people. The latter include children. For MIIQAT, use only a permitted full-frame subset for aggregate counts; never use the face-crop collection or person-identification labels. The actual camera/clip mapping and time metadata still need inspection from the source's supplied metadata.
+
+### Release gate before data processing
+
+1. Obtain written confirmation of permitted research use for HAJJv2-CrowdCount annotations (license currently TBC).
+2. Verify the exact Figshare item license and dataset terms for the Masjid data; confirm that aggregate crowd counting on RawDataFrames is permitted.
+3. Confirm the source metadata's camera-count discrepancy and whether clip timestamps or frame order are recoverable.
+4. Only then download the permitted files locally and run the benchmarks. Keep source media and annotations out of Git unless redistribution is expressly permitted.
+
+Until these gates are cleared, the repository contains reproducible tooling and protocol, not claimed empirical results from either new download.
