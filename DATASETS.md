@@ -39,3 +39,15 @@ Add directional-flow variables only when supported by a documented annotation or
 - Keep the final test set untouched until model selection is complete.
 
 Every dataset entry must record its source, license/access conditions, annotation provenance, sampling cadence, unit, missingness, and permitted research use.
+
+
+## Hajj and Masjid al-Nabawi sources
+
+A source-specific integration protocol is maintained in [DATASET_INTEGRATION_HAJJ_MASJID.md](DATASET_INTEGRATION_HAJJ_MASJID.md).
+
+- **HAJJv2-CrowdCount:** use its per-second human-count annotations for a separate Hajj count-stream benchmark. The annotation repository currently marks its license as TBC; confirm terms before reuse or redistribution. The source videos remain separate and subject to the original HAJJv2 research/non-commercial terms.
+- **HAJJv2 behaviour annotations:** use only for a separate, class-imbalanced behaviour-analysis task. Do not treat behaviour labels as validated operational risk labels.
+- **Masjid al-Nabawi large-gathering dataset:** consider only permitted RawDataFrames for aggregate, non-identifying crowd-count/density evaluation. Exclude processed face crops and all face recognition, identity matching and persistent person tracking from MIIQAT.
+- The Masjid dataset landing page contains a camera-count discrepancy (24 in its narrative versus 14 in its video-summary table) and describes 34 clips/4,613 frames. Verify actual metadata and permissions before any temporal or multi-camera claims.
+
+These sources are not synchronized views of a shared connected-zone network. Keep their metrics separate from graph-temporal forecasting and synthetic intervention evaluation. Do not infer zone adjacency, capacities, flow or intervention effectiveness from the datasets alone.
