@@ -20,14 +20,21 @@ MODELS = ("persistence", "rolling_mean_3", "linear_trend_5", "training_global_me
 def read_counts(path):
     series = defaultdict(dict)
     with Path(path).open(newline="", encoding="utf-8") as handle:
-        for row in csv.DictReader(handle):
-            series[row["video"]][int(row["time_s"])] = float(row["GT_count"])
+        reader = csv.DictReader(handle)
+        required = {"video", "time_s", "GT_count"}
+        if not required.issubset(reader.fieldnames or []):
+            raise ValueError(f"{path} must contain columns {sorted(required)}")
+        for row in reader:
+            video = row["video"]
+            timestamp = int(row["time_s"])
+            if timestamp in series[video]:
+                raise ValueError(f"Duplicate timestamp {timestamp} in {video}")
+            value = float(row["GT_count"])
+            if not math.isfinite(value) or value < 0:
+                raise ValueError(f"Invalid crowd count in {video} at {timestamp}")
+            series[video][timestamp] = value
     if not series:
         raise ValueError(f"No annotation rows found in {path}")
-    for video, points in series.items():
-        times = sorted(points)
-        if len(times) != len(set(times)):
-            raise ValueError(f"Duplicate timestamps in {video}")
     return series
 
 
