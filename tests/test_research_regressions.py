@@ -2,8 +2,8 @@ import math
 import unittest
 
 from miqaat.feature_pipeline import (
-    FEATURE_NAMES, GraphSequence, fit_feature_normalizer, group_holdout_split,
-    normalize_feature_window, zone_features,
+    FEATURE_NAMES, GraphSequence, build_sequences, fit_feature_normalizer,
+    group_holdout_split, normalize_feature_window, zone_features,
 )
 from miqaat.models import Intervention, NetworkState, ZoneState
 from miqaat.simulator import SyntheticWorld, advance_state, apply_intervention
@@ -65,6 +65,62 @@ class ResearchRegressionTests(unittest.TestCase):
         test_groups = {item.group_id for item in test}
         self.assertTrue(train_groups.isdisjoint(test_groups))
         self.assertTrue(train and test)
+
+    def test_build_sequences_never_crosses_video_boundaries(self):
+        states = []
+        for video_id, base_count in (("video_a", 10), ("video_b", 70)):
+            for timestamp in range(8):
+                count = base_count + timestamp
+                states.append(NetworkState(
+                    timestamp=timestamp,
+                    zones={
+                        "A": ZoneState(
+                            "A", 100, count, 1, 1, 1.0, "east", 0, True
+                        ),
+                    },
+                    edges={"A": []},
+                    scenario_id="surge",
+                    video_id=video_id,
+                ))
+
+        examples = build_sequences(states, history=3, horizons=(1, 2))
+        self.assertEqual(len(examples), 8)  # 4 valid windows per video
+        groups = {item.group_id for item in examples}
+        self.assertEqual(len(groups), 2)
+
+        for example in examples:
+            if "video_a" in example.group_id:
+                expected_base = 10
+            else:
+                self.assertIn("video_b", example.group_id)
+                expected_base = 70
+
+            # The first feature is occupancy ratio; all input values and future
+            # targets must originate from the same video's count sequence.
+            input_counts = [
+                round(timestep[0][0] * 100)
+                for timestep in example.features
+            ]
+            self.assertEqual(
+                input_counts,
+                list(range(input_counts[0], input_counts[0] + 3)),
+            )
+            self.assertGreaterEqual(input_counts[0], expected_base)
+            self.assertLess(input_counts[-1], expected_base + 8)
+            for horizon in (1, 2):
+                target_count = round(example.targets[horizon][0] * 100)
+                self.assertGreaterEqual(target_count, expected_base)
+                self.assertLess(target_count, expected_base + 8)
+                self.assertGreater(target_count, input_counts[-1])
+
+    def test_build_sequences_rejects_duplicate_timestamps_within_group(self):
+        state = SyntheticWorld(seed=4, scenario="normal").state
+        duplicate = SyntheticWorld(seed=5, scenario="normal").state
+        state.video_id = "same_video"
+        duplicate.video_id = "same_video"
+        duplicate.timestamp = state.timestamp
+        with self.assertRaisesRegex(ValueError, "unique within group"):
+            build_sequences([state, duplicate], history=1, horizons=(1,))
 
     def test_feature_pipeline_rejects_nonfinite_features(self):
         state = SyntheticWorld(seed=4, scenario="normal").state
