@@ -1,63 +1,69 @@
-# Miqaat AI
+# MIIQAT-AI
 
-**MIIQAT-AI** is a research prototype for network-level crowd and shuttle-traffic risk analysis in Hajj and Umrah scenarios. It currently runs on **synthetic data**; it is not connected to live cameras, GPS, gate counters, or operational systems.
+**MIIQAT-AI** is a research prototype for graph-based, network-level crowd-risk analysis and intervention evaluation in Hajj and Umrah scenarios.
 
-The prototype models a three-zone network, estimates interpretable risk, and compares candidate actions through a short simulated rollout. Its research question is whether choosing actions by projected network risk performs better in this synthetic setting than doing nothing or selecting an action from the currently highest-risk zone.
+The current repository contains a reproducible synthetic zone-flow simulator, a transparent rule-based risk baseline, conservative rule/AI risk fusion, capacity-limited graph transfers, a constraint-aware intervention evaluator, graph-temporal data preparation, simple forecasting baselines, and an optional graph-aggregation + GRU model. It is not connected to live cameras, GPS, gate counters, or operational systems.
 
-## Current capabilities
+## Implemented modules
 
-- Reproducible synthetic scenarios: normal flow, surge, shuttle delay, blocked emergency route, sensor outage, compound stressors, and mixed periodic conditions.
-- Risk scoring with density, growth, vehicle conflict, downstream risk, emergency-route status, and sensor confidence.
-- Candidate interventions: open an alternate gate, reroute part of upstream inflow, and reduce shuttle inflow.
-- A network-level policy, a local worst-zone baseline, and a no-action comparison.
-- Benchmark outputs in CSV and JSON with a fixed seed sequence.
+- Synthetic scenarios: normal flow, surge, shuttle delay, blocked emergency route, sensor outage, compound stressors, and mixed periodic conditions.
+- General directed graph validation and iterative downstream risk propagation.
+- Interventions that modify only their specified flow controls; population advances once per simulation step.
+- Capacity-limited inter-zone transfers; blocked transfers remain at the source zone.
+- Rule/AI risk fusion that prevents a HIGH or CRITICAL rule alert from being downgraded by the AI estimate.
+- Constraint-aware comparison of no action, gate opening, pedestrian rerouting and shuttle-flow reduction.
+- Graph-temporal feature construction with future targets and chronological purging.
+- Persistence, moving-average and linear-trend forecasting baselines.
+- Optional PyTorch graph-aggregation + GRU model and training utilities.
+- Split-conformal interval utility and additive contribution explanations (not SHAP).
 
-## Run the simulation
+## Run the core prototype
 
-Python 3.10 or later is recommended. The core uses only the Python standard library.
+Python 3.10 or later; the core simulator and tests use only the Python standard library.
 
-```bash
-python3 run_miqaat.py --steps 30
+~~~bash
+python3 run_miqaat.py --steps 30 --horizon 5
 python3 run_miqaat.py --steps 30 --horizon 5 --json
-```
+~~~
 
-## Run the research benchmark
+## Run tests and synthetic benchmark
 
-```bash
+~~~bash
+python3 -m unittest discover -s tests -v
 python3 benchmark_miqaat.py
-```
+~~~
 
-Default benchmark: 20 seeds × 120 steps for each defined scenario, with five-step rollouts. Output files are written to `benchmark_results/`:
+Quick benchmark:
 
-- `benchmark_steps.csv`: per-step policy results and risk metrics.
-- `benchmark_summary.json`: scenario summaries, aggregate results, and limitations. A checked-in default-run snapshot is available at [benchmark_results/benchmark_summary.json](benchmark_results/benchmark_summary.json).
-
-## Optional: HAJJv2 count-stream benchmark
-
-A separate exploratory benchmark evaluates one-step-ahead temporal baselines on the public HAJJv2-CrowdCount annotations. It uses the previous three or more human-verified counts from each test video to forecast the next count. This does not run image-based counters and does not evaluate MIIQAT's risk/intervention policy.
-
-Download the annotation CSVs from the [HAJJv2-CrowdCount repository](https://github.com/reem-8899/HAJJv2-CrowdCount), then run:
-
-```bash
-python3 benchmarks/hajj_count_forecast.py \
-  --train-csv path/to/train_counts.csv \
-  --test-csv path/to/test_counts.csv
-```
-
-The checked-in [summary](benchmarks/hajj_count_forecast_summary.json) reports MAE, RMSE, bias, and video-cluster bootstrap intervals. In the 124 scored frames from the eight-video main test subset, persistence achieved MAE 6.59 people; this is a forecast-from-prior-count baseline. Published YOLO-World, SAM3Count, and APGCC scores are per-frame visual-counting results, so they are not directly comparable to this temporal forecast score.
-
-Run the simulator regression checks with:\n\n```bash\npython3 -m unittest discover -s tests -v\n```\n\nFor a quick smoke run:
-
-```bash
+~~~bash
 python3 benchmark_miqaat.py --seeds 2 --steps 30 --scenario mixed --out benchmark_smoke
-```
+~~~
 
-The benchmark compares mean rollout risk for network-level action selection, a local-risk baseline, and no action. It also reports peak rollout risk, critical-risk interval rate, low sensor-confidence rate, and heuristic warning category. Read [BENCHMARK_PROTOCOL.md](BENCHMARK_PROTOCOL.md) before interpreting results.
+The benchmark writes per-step CSV and aggregate JSON outputs. Confidence intervals use seed-cluster bootstrap resampling. They quantify variability under the synthetic generator, not real-world uncertainty.
 
-## Research limitations
+## Optional graph-temporal model
 
-All benchmark data are generated by a small stylized simulator. Flow transfer rules, scenario parameters, intervention effects, network layout, risk weights, and risk thresholds are assumptions; they have not been calibrated to Hajj measurements or validated with operators. The current code does not implement or test a live-sensor privacy gate, so it makes no measured privacy-performance claim. The short rollout is an internal policy comparison, not a validated prediction of future crowd conditions. The warning category is not observed incident lead time.
+Install the optional dependency:
 
-HAJJv2 and traffic datasets listed in [DATASETS.md](DATASETS.md) may support separate perception experiments, subject to access, licensing, annotation quality, and a clearly defined evaluation protocol. They do not, by themselves, validate this simulator's intervention effects.
+~~~bash
+pip install -r requirements-ml.txt
+~~~
 
-Do not present simulated output as recorded Hajj incidents, measured operational performance, or evidence that the system prevents harm. Operational use would require calibrated flow models, independent data validation, uncertainty and failure analysis, human approval, safety testing, and privacy and legal review.
+The model and training utilities are in miqaat/forecasting. They have not been trained or validated merely by being included in the repository. Training, hyperparameter selection, calibration and held-out evaluation remain research tasks.
+
+## Separate HAJJv2 count-stream experiment
+
+The existing benchmarks/hajj_count_forecast.py evaluates temporal baselines on human-verified HAJJv2 crowd-count annotations. It predicts future counts from prior annotated counts within a video. It does not run an image-based counter and does not validate MIIQAT's risk or intervention models. See DATASETS.md and BENCHMARK_PROTOCOL.md.
+
+## Research gaps and limitations
+
+See RESEARCH_GAPS.md for the literature-grounded research scope. The present simulator's flow rules, topology, intervention effects, risk coefficients and thresholds are assumptions, not calibrated Hajj measurements. No live sensing, validated incident prediction, operational digital twin, real-time safety assurance or field-tested intervention is claimed.
+
+Do not present synthetic output as recorded Hajj incidents or evidence that the system prevents harm. Operational use would require authorized data, calibrated models, independent validation, uncertainty and failure analysis, human oversight, and privacy/security review.
+
+
+## Research correctness and validation status
+
+Recent research-branch corrections address persistent-intervention compounding, stepwise reroute feasibility, conformal finite-sample handling, group-held-out evaluation, training-only normalization, and explicit definitions of occupancy ratio, flow accounting, warning categories, and delay proxies.
+
+These corrections are not equivalent to model validation. Confirm the latest CI/test run before merging. Graph-temporal model performance, empirical uncertainty calibration, Hajj-specific calibration, and operational intervention effectiveness remain unverified.

@@ -1,0 +1,40 @@
+name: MIIQAT-AI research-upgrade checks
+
+on:
+  push:
+    branches: [research-upgrade]
+  pull_request:
+    branches: [main]
+
+jobs:
+  core-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile Python modules
+        run: python -m compileall -q miqaat tests
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -v
+      - name: Run CLI smoke test
+        run: python run_miqaat.py --steps 5 --horizon 2
+      - name: Run benchmark smoke test
+        run: python benchmark_miqaat.py --seeds 2 --steps 10 --horizon 2 --scenario mixed --out benchmark_smoke
+      - name: Run multi-scenario synthetic validation
+        run: python benchmark_miqaat.py --seeds 10 --steps 60 --horizon 5 --scenario all --out validation_results
+      - name: Run out-of-model intervention sensitivity benchmark
+        run: |
+          python benchmarks/intervention_robustness.py \
+            --seeds 10 --steps 60 --horizon 5 \
+            --transfer-fractions 0.10,0.25,0.40 \
+            --scenario all \
+            --out validation_results/intervention_robustness
+      - name: Upload synthetic validation artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: miiqaat-synthetic-validation
+          path: validation_results/
+          if-no-files-found: error
+          retention-days: 30
