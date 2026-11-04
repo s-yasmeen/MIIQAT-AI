@@ -90,3 +90,21 @@ The contribution remains a hypothesis, not an established result. The branch doe
 - field-tested intervention safety or causal effectiveness.
 
 Before publication, run CI and smoke tests on the exact final commit; conduct scenario/video/site-held-out model comparisons; report horizon- and zone-level MAE/RMSE, calibration coverage/width, capacity violations, and seed/group-cluster confidence intervals; and keep synthetic simulator findings separate from the HAJJv2 count-stream experiment. Do not claim operational deployment readiness.
+
+
+## Latest implementation and evidence status
+
+- Sequence construction now groups raw states by available site/scenario/video identifiers before making windows. Input history and future targets are created within one group only.
+- Chronological splitting now sorts and purges independently within each group. Group-held-out splitting remains the separate test for unseen-source generalization.
+- Regression tests cover video-boundary isolation and per-group chronological purging.
+- Added benchmarks/intervention_robustness.py: action selection uses the nominal simulator and the selected policy is evaluated under perturbed internal-transfer fractions (0.10, 0.25, 0.40). This is a model-misspecification sensitivity analysis, not external validation.
+
+The completed 10-seed × 60-step × 7-scenario synthetic benchmark from the prior CI run showed an overall network-policy risk reduction of approximately **0.139% versus no action** and **0.048% versus local-worst-zone selection**. Paired seed-cluster 95% bootstrap intervals for network-minus-no-action risk were approximately [-0.00103, -0.00093], and network-minus-local approximately [-0.00074, -0.00054]. These are small effects under the current simulator. The shuttle-delay scenario's paired network-minus-no-action interval crossed zero, and the compound scenario showed no difference from the local policy. The results therefore do not support a broad claim of robust intervention superiority.
+
+The HAJJv2 count-stream experiment is a distinct, held-out-video temporal baseline evaluation using human-annotated counts. Its existing summary reports persistence MAE 6.59 and RMSE 9.24 on 124 scored observations across eight ordinary test videos (with a separate extreme-count video). It uses prior ground-truth counts from each test video and does not validate GCN-GRU, zone-level forecasting, or intervention policies. The source annotation repository currently marks its license as TBC; confirm terms before redistributing data or automating downloads.
+
+Still required:
+- Train and evaluate the GCN-GRU on a documented, permitted dataset with untouched video/scenario/site-held-out partitions.
+- Report per-horizon/per-zone metrics and compare against strong temporal baselines.
+- Complete the new sensitivity benchmark and inspect capacity violations and policy trade-offs.
+- Obtain independently measured network-flow and intervention outcome data before claiming benefits beyond the simulator.
