@@ -33,6 +33,13 @@ jobs:
             --train-csv /tmp/hajjv2_annotations/train_counts.csv \
             --test-csv /tmp/hajjv2_annotations/test_counts.csv \
             --out-dir validation_results/hajj_count_forecast
+      - name: Run out-of-model intervention sensitivity benchmark
+        run: |
+          python benchmarks/intervention_robustness.py \
+            --seeds 10 --steps 60 --horizon 5 \
+            --transfer-fractions 0.10,0.25,0.40 \
+            --scenario all \
+            --out validation_results/intervention_robustness
       - name: Upload synthetic validation artifacts
         uses: actions/upload-artifact@v4
         with:
