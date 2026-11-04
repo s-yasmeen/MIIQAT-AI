@@ -65,3 +65,16 @@ The current research branch includes regression fixes for persistent gate/shuttl
 - Warning output: warning categories are heuristic risk bands. They are not lead-time forecasts and must not be described as minutes of advance warning.
 - Delay metric: the objective's normalized positive inflow-minus-outflow quantity is a flow-imbalance proxy, not measured waiting time or travel time.
 - Uncertainty: an infinite conformal radius is the conservative finite-sample result when the required rank exceeds the calibration sample. Do not silently clip it to a finite maximum. Empirical coverage and interval width must be measured on held-out calibration/test data.
+
+
+## Out-of-model intervention sensitivity
+
+Run the additional sensitivity experiment with:
+
+~~~bash
+python benchmarks/intervention_robustness.py --seeds 10 --steps 60 --horizon 5 --transfer-fractions 0.10,0.25,0.40 --scenario all
+~~~
+
+The policy is selected by the nominal optimizer (which uses the default transfer fraction of 0.25), then evaluated under alternative transfer fractions. The report includes paired seed-cluster intervals for risk differences, peak risk, and capacity-violation steps. This tests sensitivity to one simulator assumption; it does not validate the other assumptions or establish real-world benefit. The 0.25 evaluation is the nominal condition, while 0.10 and 0.40 are deliberately perturbed conditions.
+
+The HAJJv2-CrowdCount annotation repository currently identifies its license as TBC. The benchmark script accepts user-supplied train/test CSVs, but automated CI must not fetch or redistribute those files until the applicable license and research-use terms are confirmed. The existing count-stream summary is a separate exploratory result and is not evidence for network-level intervention effectiveness.
